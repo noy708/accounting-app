@@ -1,46 +1,84 @@
-# Getting Started with Create React App
+# 会計アプリ (Accounting App)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+個人または小規模事業者向けの会計アプリケーション。収入・支出の記録、カテゴリ別の分類、基本的な財務レポートの生成機能を提供します。
 
-## Available Scripts
+## 技術スタック
 
-In the project directory, you can run:
+- **フロントエンド**: React 18 + TypeScript
+- **状態管理**: Redux Toolkit + RTK Query
+- **UI コンポーネント**: Material-UI (MUI)
+- **データベース**: IndexedDB (Dexie.js)
+- **チャート**: Chart.js + react-chartjs-2
+- **日付処理**: date-fns
+- **バリデーション**: Yup + Formik
+- **テスト**: Jest + React Testing Library
 
-### `npm start`
+## 開発環境のセットアップ
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 前提条件
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js (v16以上)
+- npm または yarn
 
-### `npm test`
+### インストール
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+# 依存関係のインストール
+npm install
 
-### `npm run build`
+# 開発サーバーの起動
+npm start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# プロダクションビルド
+npm run build
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# テストの実行
+npm test
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# リンターの実行
+npm run lint
 
-### `npm run eject`
+# フォーマッターの実行
+npm run format
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## プロジェクト構造
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+├── components/          # Reactコンポーネント
+├── constants/          # アプリケーション定数
+├── hooks/              # カスタムフック
+├── services/           # データアクセス層
+├── store/              # Redux store設定
+├── types/              # TypeScript型定義
+├── utils/              # ユーティリティ関数
+└── App.tsx             # メインアプリケーション
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 主要機能
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. **取引管理**
+   - 収入・支出の記録
+   - 取引の編集・削除
+   - 検索・フィルタリング
 
-## Learn More
+2. **カテゴリ管理**
+   - カテゴリの作成・編集・削除
+   - デフォルトカテゴリの自動作成
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. **レポート機能**
+   - 月次レポート
+   - カテゴリ別レポート
+   - 年次レポート（グラフ表示）
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. **データ管理**
+   - データのエクスポート/インポート（CSV）
+   - バックアップ・リストア機能
+
+## 開発ガイドライン
+
+- TypeScriptの厳密な型チェックを使用
+- ESLint + Prettierによるコード品質管理
+- テスト駆動開発（TDD）の推奨
+- コンポーネントの再利用性を重視
