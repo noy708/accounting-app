@@ -20,6 +20,7 @@ const AppRoutes: React.FC = () => {
       {/* 取引管理 */}
       <Route path="/transactions" element={<TransactionList />} />
       <Route path="/transactions/new" element={<TransactionForm />} />
+      <Route path="/transactions/new/:type" element={<TransactionForm />} />
       
       {/* カテゴリ管理 */}
       <Route path="/categories" element={<CategoryManager />} />

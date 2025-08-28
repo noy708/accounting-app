@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -61,11 +62,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   onCancel,
   initialValues = {},
 }) => {
+  const { type: urlType } = useParams<{ type?: 'income' | 'expense' }>();
   const [createTransaction, { isLoading: isCreating, error: createError }] =
     useCreateTransactionMutation();
 
   const defaultValues: FormValues = {
-    type: 'expense',
+    type: urlType || 'expense',
     amount: null,
     description: '',
     categoryId: null,

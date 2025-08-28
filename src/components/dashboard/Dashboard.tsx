@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -29,6 +30,7 @@ import { useAppSelector } from '../../store/hooks';
 import { selectRecentTransactions } from '../../store/selectors/transactionSelectors';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const currentDate = new Date();
   const recentTransactions = useAppSelector(selectRecentTransactions);
 
@@ -139,6 +141,7 @@ const Dashboard: React.FC = () => {
                 variant="contained"
                 startIcon={<Add />}
                 sx={{ flex: '1 1 150px' }}
+                onClick={() => navigate('/transactions/new/income')}
               >
                 収入を追加
               </Button>
@@ -146,6 +149,7 @@ const Dashboard: React.FC = () => {
                 variant="contained"
                 startIcon={<Add />}
                 sx={{ flex: '1 1 150px' }}
+                onClick={() => navigate('/transactions/new/expense')}
               >
                 支出を追加
               </Button>
@@ -153,6 +157,7 @@ const Dashboard: React.FC = () => {
                 variant="outlined"
                 startIcon={<Category />}
                 sx={{ flex: '1 1 150px' }}
+                onClick={() => navigate('/categories')}
               >
                 カテゴリ管理
               </Button>
@@ -160,6 +165,7 @@ const Dashboard: React.FC = () => {
                 variant="outlined"
                 startIcon={<Receipt />}
                 sx={{ flex: '1 1 150px' }}
+                onClick={() => navigate('/transactions')}
               >
                 取引履歴
               </Button>
@@ -168,6 +174,7 @@ const Dashboard: React.FC = () => {
                 fullWidth
                 startIcon={<Assessment />}
                 sx={{ flex: '1 1 100%' }}
+                onClick={() => navigate('/reports/monthly')}
               >
                 レポート表示
               </Button>
@@ -187,7 +194,11 @@ const Dashboard: React.FC = () => {
               <Typography variant="h6" component="h2">
                 最近の取引
               </Typography>
-              <Button size="small" color="primary">
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => navigate('/transactions')}
+              >
                 すべて表示
               </Button>
             </Box>
