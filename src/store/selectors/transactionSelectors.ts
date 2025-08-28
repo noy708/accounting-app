@@ -4,11 +4,16 @@ import { Transaction, TransactionFilter } from '../../types';
 
 // Base selectors
 export const selectTransactionState = (state: RootState) => state.transactions;
-export const selectTransactions = (state: RootState) => state.transactions.transactions;
-export const selectCurrentTransaction = (state: RootState) => state.transactions.currentTransaction;
-export const selectTransactionLoading = (state: RootState) => state.transactions.loading;
-export const selectTransactionFilter = (state: RootState) => state.transactions.filter;
-export const selectTransactionPagination = (state: RootState) => state.transactions.pagination;
+export const selectTransactions = (state: RootState) =>
+  state.transactions.transactions;
+export const selectCurrentTransaction = (state: RootState) =>
+  state.transactions.currentTransaction;
+export const selectTransactionLoading = (state: RootState) =>
+  state.transactions.loading;
+export const selectTransactionFilter = (state: RootState) =>
+  state.transactions.filter;
+export const selectTransactionPagination = (state: RootState) =>
+  state.transactions.pagination;
 
 // Memoized selectors
 export const selectFilteredTransactions = createSelector(
@@ -17,32 +22,36 @@ export const selectFilteredTransactions = createSelector(
     let filtered = [...transactions];
 
     if (filter.startDate) {
-      filtered = filtered.filter(t => new Date(t.date) >= filter.startDate!);
+      filtered = filtered.filter((t) => new Date(t.date) >= filter.startDate!);
     }
 
     if (filter.endDate) {
-      filtered = filtered.filter(t => new Date(t.date) <= filter.endDate!);
+      filtered = filtered.filter((t) => new Date(t.date) <= filter.endDate!);
     }
 
     if (filter.categoryId) {
-      filtered = filtered.filter(t => t.categoryId === filter.categoryId);
+      filtered = filtered.filter((t) => t.categoryId === filter.categoryId);
     }
 
     if (filter.type) {
-      filtered = filtered.filter(t => t.type === filter.type);
+      filtered = filtered.filter((t) => t.type === filter.type);
     }
 
     if (filter.minAmount !== undefined) {
-      filtered = filtered.filter(t => Math.abs(t.amount) >= filter.minAmount!);
+      filtered = filtered.filter(
+        (t) => Math.abs(t.amount) >= filter.minAmount!
+      );
     }
 
     if (filter.maxAmount !== undefined) {
-      filtered = filtered.filter(t => Math.abs(t.amount) <= filter.maxAmount!);
+      filtered = filtered.filter(
+        (t) => Math.abs(t.amount) <= filter.maxAmount!
+      );
     }
 
     if (filter.description) {
       const searchTerm = filter.description.toLowerCase();
-      filtered = filtered.filter(t => 
+      filtered = filtered.filter((t) =>
         t.description.toLowerCase().includes(searchTerm)
       );
     }
@@ -63,8 +72,8 @@ export const selectPaginatedTransactions = createSelector(
 export const selectTransactionsByType = createSelector(
   [selectTransactions],
   (transactions) => ({
-    income: transactions.filter(t => t.type === 'income'),
-    expense: transactions.filter(t => t.type === 'expense'),
+    income: transactions.filter((t) => t.type === 'income'),
+    expense: transactions.filter((t) => t.type === 'expense'),
   })
 );
 
@@ -95,13 +104,15 @@ export const selectRecentTransactions = createSelector(
   [selectTransactions],
   (transactions) => {
     return [...transactions]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
       .slice(0, 10);
   }
 );
 
 export const selectTransactionById = (id: string) =>
-  createSelector(
-    [selectTransactions],
-    (transactions) => transactions.find(t => t.id === id)
+  createSelector([selectTransactions], (transactions) =>
+    transactions.find((t) => t.id === id)
   );

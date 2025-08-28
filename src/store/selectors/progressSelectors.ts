@@ -4,30 +4,32 @@ import { RootState } from '../index';
 // Base selectors
 export const selectProgressState = (state: RootState) => state.progress;
 export const selectOperations = (state: RootState) => state.progress.operations;
-export const selectGlobalLoading = (state: RootState) => state.progress.globalLoading;
-export const selectLoadingCount = (state: RootState) => state.progress.loadingCount;
+export const selectGlobalLoading = (state: RootState) =>
+  state.progress.globalLoading;
+export const selectLoadingCount = (state: RootState) =>
+  state.progress.loadingCount;
 
 // Memoized selectors
 export const selectActiveOperations = createSelector(
   [selectOperations],
-  (operations) => Object.values(operations).filter(op => op.status === 'loading')
+  (operations) =>
+    Object.values(operations).filter((op) => op.status === 'loading')
 );
 
 export const selectCompletedOperations = createSelector(
   [selectOperations],
-  (operations) => Object.values(operations).filter(op => op.status === 'success')
+  (operations) =>
+    Object.values(operations).filter((op) => op.status === 'success')
 );
 
 export const selectFailedOperations = createSelector(
   [selectOperations],
-  (operations) => Object.values(operations).filter(op => op.status === 'error')
+  (operations) =>
+    Object.values(operations).filter((op) => op.status === 'error')
 );
 
 export const selectOperationById = (id: string) =>
-  createSelector(
-    [selectOperations],
-    (operations) => operations[id]
-  );
+  createSelector([selectOperations], (operations) => operations[id]);
 
 export const selectOperationsByType = createSelector(
   [selectOperations],
@@ -39,8 +41,8 @@ export const selectOperationsByType = createSelector(
       import: [],
       other: [],
     };
-    
-    Object.values(operations).forEach(op => {
+
+    Object.values(operations).forEach((op) => {
       if (op.id.startsWith('load-')) {
         byType.load.push(op);
       } else if (op.id.startsWith('save-')) {
@@ -53,7 +55,7 @@ export const selectOperationsByType = createSelector(
         byType.other.push(op);
       }
     });
-    
+
     return byType;
   }
 );
@@ -62,15 +64,15 @@ export const selectOverallProgress = createSelector(
   [selectActiveOperations],
   (activeOperations) => {
     if (activeOperations.length === 0) return 100;
-    
+
     const totalProgress = activeOperations.reduce((sum, op) => {
       return sum + (op.indeterminate ? 0 : op.progress);
     }, 0);
-    
-    const determinateOps = activeOperations.filter(op => !op.indeterminate);
-    
+
+    const determinateOps = activeOperations.filter((op) => !op.indeterminate);
+
     if (determinateOps.length === 0) return 0;
-    
+
     return totalProgress / determinateOps.length;
   }
 );
@@ -80,12 +82,12 @@ export const selectEstimatedTimeRemaining = createSelector(
   (activeOperations) => {
     let totalEstimated = 0;
     let hasEstimates = false;
-    
-    activeOperations.forEach(op => {
+
+    activeOperations.forEach((op) => {
       if (op.estimatedDuration && !op.indeterminate) {
         const elapsed = Date.now() - op.startTime;
         const progressRatio = op.progress / 100;
-        
+
         if (progressRatio > 0) {
           const estimatedTotal = elapsed / progressRatio;
           const remaining = Math.max(0, estimatedTotal - elapsed);
@@ -97,19 +99,16 @@ export const selectEstimatedTimeRemaining = createSelector(
         }
       }
     });
-    
+
     return hasEstimates ? totalEstimated : null;
   }
 );
 
 export const selectIsOperationActive = (id: string) =>
-  createSelector(
-    [selectOperations],
-    (operations) => {
-      const operation = operations[id];
-      return operation && operation.status === 'loading';
-    }
-  );
+  createSelector([selectOperations], (operations) => {
+    const operation = operations[id];
+    return operation && operation.status === 'loading';
+  });
 
 export const selectHasActiveOperations = createSelector(
   [selectActiveOperations],
@@ -126,12 +125,12 @@ export const selectOperationStats = createSelector(
       error: 0,
       idle: 0,
     };
-    
-    Object.values(operations).forEach(op => {
+
+    Object.values(operations).forEach((op) => {
       stats.total++;
       stats[op.status]++;
     });
-    
+
     return stats;
   }
 );

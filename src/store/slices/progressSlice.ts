@@ -27,15 +27,24 @@ const progressSlice = createSlice({
   name: 'progress',
   initialState,
   reducers: {
-    startOperation: (state, action: PayloadAction<{
-      id: string;
-      name: string;
-      message?: string;
-      estimatedDuration?: number;
-      indeterminate?: boolean;
-    }>) => {
-      const { id, name, message, estimatedDuration, indeterminate = false } = action.payload;
-      
+    startOperation: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        name: string;
+        message?: string;
+        estimatedDuration?: number;
+        indeterminate?: boolean;
+      }>
+    ) => {
+      const {
+        id,
+        name,
+        message,
+        estimatedDuration,
+        indeterminate = false,
+      } = action.payload;
+
       state.operations[id] = {
         id,
         name,
@@ -46,19 +55,22 @@ const progressSlice = createSlice({
         estimatedDuration,
         indeterminate,
       };
-      
+
       state.loadingCount++;
       state.globalLoading = true;
     },
-    
-    updateProgress: (state, action: PayloadAction<{
-      id: string;
-      progress?: number;
-      message?: string;
-    }>) => {
+
+    updateProgress: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        progress?: number;
+        message?: string;
+      }>
+    ) => {
       const { id, progress, message } = action.payload;
       const operation = state.operations[id];
-      
+
       if (operation) {
         if (progress !== undefined) {
           operation.progress = Math.min(100, Math.max(0, progress));
@@ -68,89 +80,98 @@ const progressSlice = createSlice({
         }
       }
     },
-    
-    completeOperation: (state, action: PayloadAction<{
-      id: string;
-      message?: string;
-    }>) => {
+
+    completeOperation: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        message?: string;
+      }>
+    ) => {
       const { id, message } = action.payload;
       const operation = state.operations[id];
-      
+
       if (operation && operation.status === 'loading') {
         operation.status = 'success';
         operation.progress = 100;
         if (message) {
           operation.message = message;
         }
-        
+
         state.loadingCount = Math.max(0, state.loadingCount - 1);
         state.globalLoading = state.loadingCount > 0;
-        
+
         // Remove completed operation after a delay
         setTimeout(() => {
           delete state.operations[id];
         }, 3000);
       }
     },
-    
-    failOperation: (state, action: PayloadAction<{
-      id: string;
-      message?: string;
-    }>) => {
+
+    failOperation: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        message?: string;
+      }>
+    ) => {
       const { id, message } = action.payload;
       const operation = state.operations[id];
-      
+
       if (operation && operation.status === 'loading') {
         operation.status = 'error';
         if (message) {
           operation.message = message;
         }
-        
+
         state.loadingCount = Math.max(0, state.loadingCount - 1);
         state.globalLoading = state.loadingCount > 0;
-        
+
         // Remove failed operation after a delay
         setTimeout(() => {
           delete state.operations[id];
         }, 5000);
       }
     },
-    
+
     cancelOperation: (state, action: PayloadAction<string>) => {
       const id = action.payload;
       const operation = state.operations[id];
-      
+
       if (operation && operation.status === 'loading') {
         state.loadingCount = Math.max(0, state.loadingCount - 1);
         state.globalLoading = state.loadingCount > 0;
       }
-      
+
       delete state.operations[id];
     },
-    
+
     clearCompletedOperations: (state) => {
-      Object.keys(state.operations).forEach(id => {
+      Object.keys(state.operations).forEach((id) => {
         const operation = state.operations[id];
         if (operation.status === 'success' || operation.status === 'error') {
           delete state.operations[id];
         }
       });
     },
-    
+
     clearAllOperations: (state) => {
       state.operations = {};
       state.loadingCount = 0;
       state.globalLoading = false;
     },
-    
+
     // Helper actions for common operations
-    startDataLoad: (state, action: PayloadAction<{
-      type: 'transactions' | 'categories' | 'reports';
-      message?: string;
-    }>) => {
+    startDataLoad: (
+      state,
+      action: PayloadAction<{
+        type: 'transactions' | 'categories' | 'reports';
+        message?: string;
+      }>
+    ) => {
       const { type, message } = action.payload;
       const id = `load-${type}`;
-      
+
       state.operations[id] = {
         id,
         name: `Loading ${type}`,
@@ -160,19 +181,22 @@ const progressSlice = createSlice({
         startTime: Date.now(),
         indeterminate: true,
       };
-      
+
       state.loadingCount++;
       state.globalLoading = true;
     },
-    
-    startDataSave: (state, action: PayloadAction<{
-      type: 'transaction' | 'category';
-      operation: 'create' | 'update' | 'delete';
-      message?: string;
-    }>) => {
+
+    startDataSave: (
+      state,
+      action: PayloadAction<{
+        type: 'transaction' | 'category';
+        operation: 'create' | 'update' | 'delete';
+        message?: string;
+      }>
+    ) => {
       const { type, operation, message } = action.payload;
       const id = `save-${type}-${operation}`;
-      
+
       state.operations[id] = {
         id,
         name: `${operation} ${type}`,
@@ -183,18 +207,21 @@ const progressSlice = createSlice({
         estimatedDuration: 2000, // 2 seconds estimated
         indeterminate: false,
       };
-      
+
       state.loadingCount++;
       state.globalLoading = true;
     },
-    
-    startExport: (state, action: PayloadAction<{
-      format: 'csv' | 'json';
-      totalItems?: number;
-    }>) => {
+
+    startExport: (
+      state,
+      action: PayloadAction<{
+        format: 'csv' | 'json';
+        totalItems?: number;
+      }>
+    ) => {
       const { format, totalItems } = action.payload;
       const id = `export-${format}`;
-      
+
       state.operations[id] = {
         id,
         name: `Export to ${format.toUpperCase()}`,
@@ -205,18 +232,21 @@ const progressSlice = createSlice({
         estimatedDuration: totalItems ? totalItems * 10 : 5000, // 10ms per item or 5s default
         indeterminate: false,
       };
-      
+
       state.loadingCount++;
       state.globalLoading = true;
     },
-    
-    startImport: (state, action: PayloadAction<{
-      format: 'csv' | 'json';
-      totalItems?: number;
-    }>) => {
+
+    startImport: (
+      state,
+      action: PayloadAction<{
+        format: 'csv' | 'json';
+        totalItems?: number;
+      }>
+    ) => {
       const { format, totalItems } = action.payload;
       const id = `import-${format}`;
-      
+
       state.operations[id] = {
         id,
         name: `Import from ${format.toUpperCase()}`,
@@ -227,7 +257,7 @@ const progressSlice = createSlice({
         estimatedDuration: totalItems ? totalItems * 20 : 10000, // 20ms per item or 10s default
         indeterminate: false,
       };
-      
+
       state.loadingCount++;
       state.globalLoading = true;
     },

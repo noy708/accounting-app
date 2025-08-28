@@ -10,12 +10,11 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Grid,
   CircularProgress,
   IconButton,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { Formik, Form, FormikHelpers } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 
 import { Transaction, UpdateTransactionDto } from '../../types';
@@ -26,8 +25,7 @@ import {
 import AmountInput from '../common/AmountInput';
 import CategorySelector from '../common/CategorySelector';
 import DatePicker from '../common/DatePicker';
-import { ErrorDisplay } from '../common';
-import { LoadingDisplay } from '../common';
+import LoadingDisplay from '../common/LoadingDisplay';
 
 interface TransactionEditModalProps {
   open: boolean;
@@ -125,8 +123,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: { minHeight: '500px' },
+      slotProps={{
+        paper: { sx: { minHeight: '500px' } },
       }}
     >
       <DialogTitle>
@@ -154,49 +152,45 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, errors, touched, setFieldValue, isSubmitting }) => (
-          <Form>
+        {({ values, errors, touched, setFieldValue, isSubmitting, submitForm }) => (
+          <>
             <DialogContent>
-              <Box>
-                <Grid container spacing={3}>
-                  {/* Transaction Type Toggle */}
-                  <Grid size={12}>
-                    <Typography variant="subtitle2" gutterBottom>
-                      取引種別 *
-                    </Typography>
-                    <ToggleButtonGroup
-                      value={values.type}
-                      exclusive
-                      onChange={(_, newType) => {
-                        if (newType) {
-                          setFieldValue('type', newType);
-                          // Reset category when type changes
-                          setFieldValue('categoryId', null);
-                        }
-                      }}
-                      aria-label="取引種別"
-                      fullWidth
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box>
+                  <Typography variant="subtitle2" gutterBottom>
+                    取引種別 *
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={values.type}
+                    exclusive
+                    onChange={(_, newType) => {
+                      if (newType) {
+                        setFieldValue('type', newType);
+                        setFieldValue('categoryId', null);
+                      }
+                    }}
+                    aria-label="取引種別"
+                    fullWidth
+                  >
+                    <ToggleButton value="income" aria-label="収入">
+                      収入
+                    </ToggleButton>
+                    <ToggleButton value="expense" aria-label="支出">
+                      支出
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                  {errors.type && touched.type && (
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      sx={{ mt: 1, display: 'block' }}
                     >
-                      <ToggleButton value="income" aria-label="収入">
-                        収入
-                      </ToggleButton>
-                      <ToggleButton value="expense" aria-label="支出">
-                        支出
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                    {errors.type && touched.type && (
-                      <Typography
-                        variant="caption"
-                        color="error"
-                        sx={{ mt: 1, display: 'block' }}
-                      >
-                        {errors.type}
-                      </Typography>
-                    )}
-                  </Grid>
-
-                  {/* Amount Input */}
-                  <Grid size={{ xs: 12, sm: 6 }}>
+                      {errors.type}
+                    </Typography>
+                  )}
+                </Box>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ flex: '1 1 200px', minWidth: 150 }}>
                     <AmountInput
                       value={values.amount}
                       onChange={(amount) => setFieldValue('amount', amount)}
@@ -210,10 +204,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                       fullWidth
                       maxAmount={999999999}
                     />
-                  </Grid>
-
-                  {/* Date Picker */}
-                  <Grid size={{ xs: 12, sm: 6 }}>
+                  </Box>
+                  <Box sx={{ flex: '1 1 200px', minWidth: 150 }}>
                     <DatePicker
                       value={values.date}
                       onChange={(date) => setFieldValue('date', date)}
@@ -225,53 +217,38 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                       maxDate={new Date()}
                       fullWidth
                     />
-                  </Grid>
-
-                  {/* Category Selector */}
-                  <Grid size={12}>
-                    <CategorySelectorWithData
-                      value={values.categoryId}
-                      onChange={(categoryId) =>
-                        setFieldValue('categoryId', categoryId)
-                      }
-                      filterByType={values.type}
-                      error={!!(errors.categoryId && touched.categoryId)}
-                      helperText={
-                        errors.categoryId && touched.categoryId
-                          ? errors.categoryId
-                          : undefined
-                      }
-                    />
-                  </Grid>
-
-                  {/* Description */}
-                  <Grid size={12}>
-                    <TextField
-                      value={values.description}
-                      onChange={(e) =>
-                        setFieldValue('description', e.target.value)
-                      }
-                      label="説明 *"
-                      error={!!(errors.description && touched.description)}
-                      helperText={
-                        errors.description && touched.description
-                          ? errors.description
-                          : undefined
-                      }
-                      fullWidth
-                      multiline
-                      rows={2}
-                      inputProps={{ maxLength: 200 }}
-                    />
-                  </Grid>
-
-                  {/* Error Display */}
-                  {updateError && (
-                    <Grid size={12}>
-                      <ErrorDisplay error={updateError} />
-                    </Grid>
-                  )}
-                </Grid>
+                  </Box>
+                </Box>
+                <CategorySelectorWithData
+                  value={values.categoryId}
+                  onChange={(categoryId) =>
+                    setFieldValue('categoryId', categoryId)
+                  }
+                  filterByType={values.type}
+                  error={!!(errors.categoryId && touched.categoryId)}
+                  helperText={
+                    errors.categoryId && touched.categoryId
+                      ? errors.categoryId
+                      : undefined
+                  }
+                />
+                <TextField
+                  value={values.description}
+                  onChange={(e) =>
+                    setFieldValue('description', e.target.value)
+                  }
+                  label="説明 *"
+                  error={!!(errors.description && touched.description)}
+                  helperText={
+                    errors.description && touched.description
+                      ? errors.description
+                      : undefined
+                  }
+                  fullWidth
+                  multiline
+                  rows={2}
+                  slotProps={{ htmlInput: { maxLength: 200 } }}
+                />
               </Box>
             </DialogContent>
 
@@ -283,7 +260,7 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                 キャンセル
               </Button>
               <Button
-                type="submit"
+                onClick={submitForm}
                 variant="contained"
                 disabled={isSubmitting || isUpdating}
                 startIcon={
@@ -293,7 +270,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                 {isUpdating ? '更新中...' : '更新'}
               </Button>
             </DialogActions>
-          </Form>
+          </>
+
         )}
       </Formik>
     </Dialog>
@@ -309,13 +287,13 @@ interface CategorySelectorWithDataProps {
   helperText?: string;
 }
 
-const CategorySelectorWithData: React.FC<CategorySelectorWithDataProps> = ({
+const CategorySelectorWithData = ({
   value,
   onChange,
   filterByType,
   error,
   helperText,
-}) => {
+}: CategorySelectorWithDataProps): React.ReactElement => {
   const {
     data: categories = [],
     isLoading,
@@ -323,11 +301,33 @@ const CategorySelectorWithData: React.FC<CategorySelectorWithDataProps> = ({
   } = useGetCategoriesByTypeQuery(filterByType);
 
   if (isLoading) {
-    return <LoadingDisplay loading={true} message="カテゴリを読み込み中..." />;
+    return (
+      <LoadingDisplay
+        loading={true}
+        message="カテゴリを読み込み中..."
+        type="circular"
+      />
+    );
   }
 
   if (loadError) {
-    return <ErrorDisplay error={loadError} />;
+    return (
+      <Box sx={{ color: 'error.main' }}>
+        <Typography variant="body2">
+          カテゴリの読み込みに失敗しました。
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <Box sx={{ color: 'warning.main' }}>
+        <Typography variant="body2">
+          {filterByType === 'income' ? '収入' : '支出'}カテゴリが見つかりません。
+        </Typography>
+      </Box>
+    );
   }
 
   return (

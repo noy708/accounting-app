@@ -43,9 +43,9 @@ const TestDashboard: React.FC = () => (
 );
 
 // Test context provider
-const TestProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div data-testid="test-provider">{children}</div>
-);
+const TestProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => <div data-testid="test-provider">{children}</div>;
 
 // Mock data
 const mockTransactions: Transaction[] = [
@@ -94,7 +94,8 @@ const mockCategories: Category[] = [
 
 describe('Integration Tests', () => {
   beforeEach(() => {
-    // Setup for each test
+    // Clear all mocks before each test
+    jest.clearAllMocks();
   });
 
   describe('Component Integration', () => {
@@ -155,8 +156,12 @@ describe('Integration Tests', () => {
       expect(screen.getByText(/今月の収入/)).toBeInTheDocument();
       expect(screen.getByText(/今月の支出/)).toBeInTheDocument();
       expect(screen.getByText(/今月の収支/)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /収入を追加/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /支出を追加/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /収入を追加/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /支出を追加/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -164,7 +169,10 @@ describe('Integration Tests', () => {
     it('should handle multi-step user interactions', async () => {
       const MultiStepComponent: React.FC = () => {
         const [step, setStep] = React.useState(1);
-        const [formData, setFormData] = React.useState({ description: '', amount: '' });
+        const [formData, setFormData] = React.useState({
+          description: '',
+          amount: '',
+        });
 
         return (
           <div>
@@ -174,7 +182,9 @@ describe('Integration Tests', () => {
                 <input
                   aria-label="説明"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
                 <button onClick={() => setStep(2)}>次へ</button>
               </div>
@@ -186,7 +196,9 @@ describe('Integration Tests', () => {
                   aria-label="金額"
                   type="number"
                   value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: e.target.value })
+                  }
                 />
                 <button onClick={() => setStep(1)}>戻る</button>
                 <button onClick={() => setStep(3)}>完了</button>
@@ -209,7 +221,7 @@ describe('Integration Tests', () => {
       expect(screen.getByText('ステップ 1: 基本情報')).toBeInTheDocument();
       const descriptionInput = screen.getByLabelText(/説明/i);
       await userEvent.type(descriptionInput, 'テスト取引');
-      
+
       const nextButton = screen.getByRole('button', { name: /次へ/i });
       await userEvent.click(nextButton);
 
@@ -217,7 +229,7 @@ describe('Integration Tests', () => {
       expect(screen.getByText('ステップ 2: 金額入力')).toBeInTheDocument();
       const amountInput = screen.getByLabelText(/金額/i);
       await userEvent.type(amountInput, '1500');
-      
+
       const completeButton = screen.getByRole('button', { name: /完了/i });
       await userEvent.click(completeButton);
 
@@ -234,7 +246,6 @@ describe('Integration Tests', () => {
 
         const handleSubmit = async () => {
           setLoading(true);
-          // Simulate async operation
           setTimeout(() => {
             setLoading(false);
             setHasError(true);
@@ -276,7 +287,7 @@ describe('Integration Tests', () => {
         expect(screen.getByText('エラーが発生しました')).toBeInTheDocument();
       });
 
-      // Retry
+      // Retry should clear error
       const retryButton = screen.getByRole('button', { name: /再試行/i });
       await userEvent.click(retryButton);
 
@@ -287,10 +298,11 @@ describe('Integration Tests', () => {
   describe('Data Flow Integration', () => {
     it('should maintain state across component updates', async () => {
       const StatefulComponent: React.FC = () => {
-        const [transactions, setTransactions] = React.useState<Transaction[]>(mockTransactions);
+        const [transactions, setTransactions] =
+          React.useState<Transaction[]>(mockTransactions);
         const [filter, setFilter] = React.useState('');
 
-        const filteredTransactions = transactions.filter(tx =>
+        const filteredTransactions = transactions.filter((tx) =>
           tx.description.toLowerCase().includes(filter.toLowerCase())
         );
 
@@ -305,7 +317,7 @@ describe('Integration Tests', () => {
             <div data-testid="transaction-count">
               {filteredTransactions.length}件の取引
             </div>
-            {filteredTransactions.map(tx => (
+            {filteredTransactions.map((tx) => (
               <div key={tx.id}>{tx.description}</div>
             ))}
           </div>
@@ -315,7 +327,9 @@ describe('Integration Tests', () => {
       render(<StatefulComponent />);
 
       // Initially shows all transactions
-      expect(screen.getByTestId('transaction-count')).toHaveTextContent('2件の取引');
+      expect(screen.getByTestId('transaction-count')).toHaveTextContent(
+        '2件の取引'
+      );
       expect(screen.getByText('ランチ代')).toBeInTheDocument();
       expect(screen.getByText('給与')).toBeInTheDocument();
 
@@ -323,7 +337,9 @@ describe('Integration Tests', () => {
       const filterInput = screen.getByLabelText(/フィルター/i);
       await userEvent.type(filterInput, 'ランチ');
 
-      expect(screen.getByTestId('transaction-count')).toHaveTextContent('1件の取引');
+      expect(screen.getByTestId('transaction-count')).toHaveTextContent(
+        '1件の取引'
+      );
       expect(screen.getByText('ランチ代')).toBeInTheDocument();
       expect(screen.queryByText('給与')).not.toBeInTheDocument();
     });
@@ -381,6 +397,350 @@ describe('Integration Tests', () => {
 
       const button = screen.getByRole('button', { name: '送信' });
       expect(button).toHaveAttribute('aria-describedby', 'submit-help');
+    });
+  });
+
+  describe('Cross-Component Data Flow', () => {
+    it('should handle data flow between transaction form and list', async () => {
+      const DataFlowComponent: React.FC = () => {
+        const [transactions, setTransactions] = React.useState<Transaction[]>(
+          []
+        );
+        const [formData, setFormData] = React.useState({
+          description: '',
+          amount: '',
+          categoryId: '',
+        });
+
+        const handleSubmit = (e: React.FormEvent) => {
+          e.preventDefault();
+          if (formData.description && formData.amount && formData.categoryId) {
+            const newTransaction: Transaction = {
+              id: `tx-${Date.now()}`,
+              date: new Date(),
+              amount: parseFloat(formData.amount),
+              description: formData.description,
+              categoryId: formData.categoryId,
+              type: parseFloat(formData.amount) > 0 ? 'income' : 'expense',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            setTransactions([...transactions, newTransaction]);
+            setFormData({ description: '', amount: '', categoryId: '' });
+          }
+        };
+
+        return (
+          <div>
+            <form onSubmit={handleSubmit}>
+              <input
+                aria-label="説明"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+              />
+              <input
+                aria-label="金額"
+                type="number"
+                value={formData.amount}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
+              />
+              <select
+                aria-label="カテゴリ"
+                value={formData.categoryId}
+                onChange={(e) =>
+                  setFormData({ ...formData, categoryId: e.target.value })
+                }
+              >
+                <option value="">選択してください</option>
+                <option value="cat-1">食費</option>
+              </select>
+              <button type="submit">追加</button>
+            </form>
+            <div data-testid="transaction-list">
+              {transactions.map((tx) => (
+                <div key={tx.id} data-testid="transaction-item">
+                  {tx.description} - ¥{Math.abs(tx.amount).toLocaleString()}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      render(<DataFlowComponent />);
+
+      // Fill form
+      await userEvent.type(screen.getByLabelText('説明'), 'ランチ代');
+      await userEvent.type(screen.getByLabelText('金額'), '-1200');
+      await userEvent.selectOptions(screen.getByLabelText('カテゴリ'), 'cat-1');
+
+      // Submit form
+      await userEvent.click(screen.getByRole('button', { name: '追加' }));
+
+      // Verify transaction was added
+      expect(screen.getByText('ランチ代 - ¥1,200')).toBeInTheDocument();
+
+      // Verify form was reset
+      expect(screen.getByLabelText('説明')).toHaveValue('');
+      const amountInput = screen.getByLabelText('金額');
+      expect(amountInput.value).toBe('');
+      expect(screen.getByLabelText('カテゴリ')).toHaveValue('');
+    });
+
+    it('should handle category deletion constraints', async () => {
+      const CategoryConstraintComponent: React.FC = () => {
+        const [selectedCategory, setSelectedCategory] =
+          React.useState<string>('');
+
+        const isInUse = (categoryName: string) => {
+          return categoryName === '食費'; // Only 食費 is in use
+        };
+
+        return (
+          <div>
+            <div data-testid="category-list">
+              <button onClick={() => setSelectedCategory('食費')}>
+                削除 食費
+              </button>
+              <button onClick={() => setSelectedCategory('交通費')}>
+                削除 交通費
+              </button>
+            </div>
+            {selectedCategory && (
+              <div data-testid="delete-dialog">
+                <h3>カテゴリ削除</h3>
+                <p>「{selectedCategory}」を削除しますか？</p>
+                {isInUse(selectedCategory) ? (
+                  <div>
+                    <p>このカテゴリは使用中のため削除できません</p>
+                    <button disabled>削除</button>
+                  </div>
+                ) : (
+                  <div>
+                    <p>安全に削除できます</p>
+                    <button>削除</button>
+                  </div>
+                )}
+                <button onClick={() => setSelectedCategory('')}>
+                  キャンセル
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      render(<CategoryConstraintComponent />);
+
+      // Try to delete category in use
+      await userEvent.click(screen.getByText('削除 食費'));
+
+      expect(
+        screen.getByText('このカテゴリは使用中のため削除できません')
+      ).toBeInTheDocument();
+      const disabledDeleteButton = screen
+        .getByTestId('delete-dialog')
+        .querySelector('button[disabled]');
+      expect(disabledDeleteButton).toBeDisabled();
+
+      // Cancel and try unused category
+      await userEvent.click(screen.getByText('キャンセル'));
+      await userEvent.click(screen.getByText('削除 交通費'));
+
+      expect(screen.getByText('安全に削除できます')).toBeInTheDocument();
+      const enabledDeleteButton = screen
+        .getByTestId('delete-dialog')
+        .querySelector('button:not([disabled])');
+      expect(enabledDeleteButton).not.toBeDisabled();
+    });
+  });
+
+  describe('Error Handling Integration', () => {
+    it('should handle network errors gracefully', async () => {
+      const ErrorHandlingComponent: React.FC = () => {
+        const [error, setError] = React.useState<string | null>(null);
+        const [loading, setLoading] = React.useState(false);
+        const [success, setSuccess] = React.useState(false);
+
+        const simulateNetworkCall = async () => {
+          setLoading(true);
+          setError(null);
+          setSuccess(false);
+
+          setTimeout(() => {
+            setLoading(false);
+            setError('Network error');
+          }, 100);
+        };
+
+        const handleRetry = () => {
+          setError(null);
+          setSuccess(true);
+        };
+
+        return (
+          <div>
+            <button onClick={simulateNetworkCall} disabled={loading}>
+              {loading ? '読み込み中...' : 'データ取得'}
+            </button>
+            {error && (
+              <div data-testid="error-display">
+                <p>エラー: {error}</p>
+                <button onClick={handleRetry}>再試行</button>
+              </div>
+            )}
+            {success && <p data-testid="success-message">データ取得成功</p>}
+          </div>
+        );
+      };
+
+      render(<ErrorHandlingComponent />);
+
+      // Initial call should fail
+      await userEvent.click(screen.getByText('データ取得'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('error-display')).toBeInTheDocument();
+        expect(screen.getByText('エラー: Network error')).toBeInTheDocument();
+      });
+
+      // Retry should succeed
+      await userEvent.click(screen.getByText('再試行'));
+
+      expect(screen.getByTestId('success-message')).toBeInTheDocument();
+      expect(screen.queryByTestId('error-display')).not.toBeInTheDocument();
+    });
+
+    it('should handle validation errors across forms', async () => {
+      const ValidationComponent: React.FC = () => {
+        const [formData, setFormData] = React.useState({
+          description: '',
+          amount: '',
+          date: '',
+        });
+        const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+        const validate = () => {
+          const newErrors: Record<string, string> = {};
+
+          if (!formData.description.trim()) {
+            newErrors.description = '説明は必須です';
+          } else if (formData.description.length > 200) {
+            newErrors.description = '説明は200文字以内で入力してください';
+          }
+
+          if (!formData.amount.trim()) {
+            newErrors.amount = '金額は必須です';
+          } else if (isNaN(Number(formData.amount))) {
+            newErrors.amount = '有効な数値を入力してください';
+          }
+
+          if (!formData.date) {
+            newErrors.date = '日付は必須です';
+          } else if (new Date(formData.date) > new Date()) {
+            newErrors.date = '未来の日付は入力できません';
+          }
+
+          setErrors(newErrors);
+          return Object.keys(newErrors).length === 0;
+        };
+
+        const handleSubmit = (e: React.FormEvent) => {
+          e.preventDefault();
+          if (validate()) {
+            // Success
+            setFormData({ description: '', amount: '', date: '' });
+            setErrors({});
+          }
+        };
+
+        return (
+          <form onSubmit={handleSubmit}>
+            <div>
+              <input
+                aria-label="説明"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+              />
+              {errors.description && (
+                <div data-testid="description-error">{errors.description}</div>
+              )}
+            </div>
+            <div>
+              <input
+                aria-label="金額"
+                type="number"
+                value={formData.amount}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
+              />
+              {errors.amount && (
+                <div data-testid="amount-error">{errors.amount}</div>
+              )}
+            </div>
+            <div>
+              <input
+                aria-label="日付"
+                type="date"
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
+              />
+              {errors.date && <div data-testid="date-error">{errors.date}</div>}
+            </div>
+            <button type="submit">送信</button>
+          </form>
+        );
+      };
+
+      render(<ValidationComponent />);
+
+      // Submit empty form
+      await userEvent.click(screen.getByRole('button', { name: '送信' }));
+
+      expect(screen.getByTestId('description-error')).toHaveTextContent(
+        '説明は必須です'
+      );
+      expect(screen.getByTestId('amount-error')).toHaveTextContent(
+        '金額は必須です'
+      );
+      expect(screen.getByTestId('date-error')).toHaveTextContent(
+        '日付は必須です'
+      );
+
+      // Fill with invalid data - clear first then type
+      const descInput = screen.getByLabelText('説明');
+      const amountInput = screen.getByLabelText('金額');
+      const dateInput = screen.getByLabelText('日付');
+
+      await userEvent.clear(descInput);
+      await userEvent.clear(amountInput);
+      await userEvent.clear(dateInput);
+
+      await userEvent.type(descInput, 'a'.repeat(201));
+      await userEvent.type(amountInput, 'abc'); // Non-numeric input
+      await userEvent.type(dateInput, '2025-12-31');
+
+      await userEvent.click(screen.getByRole('button', { name: '送信' }));
+
+      expect(screen.getByTestId('description-error')).toHaveTextContent(
+        '説明は200文字以内で入力してください'
+      );
+      // The amount field shows "金額は必須です" because clearing makes it empty
+      expect(screen.getByTestId('amount-error')).toHaveTextContent(
+        '金額は必須です'
+      );
+      expect(screen.getByTestId('date-error')).toHaveTextContent(
+        '未来の日付は入力できません'
+      );
     });
   });
 });

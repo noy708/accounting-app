@@ -87,3 +87,5 @@ export const YearSelector: React.FC<YearSelectorProps> = ({
     </Box>
   );
 };
+
+export default YearSelector;

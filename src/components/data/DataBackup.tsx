@@ -573,3 +573,4 @@ export const DataBackup: React.FC<DataBackupProps> = ({
     </Box>
   );
 };
+export default DataBackup;

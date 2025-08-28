@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -18,7 +17,7 @@ import {
 import { useGetMonthlyReportQuery } from '../../store/api/reportApi';
 import LoadingDisplay from '../common/LoadingDisplay';
 import ErrorDisplay from '../common/ErrorDisplay';
-import { MonthSelector } from '../common/MonthSelector';
+import MonthSelector from '../common/MonthSelector';
 
 interface MonthlyReportProps {
   className?: string;
@@ -86,8 +85,8 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
       {report && (
         <>
           {/* サマリーカード */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={3}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -98,8 +97,8 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -110,8 +109,8 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -126,8 +125,8 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -138,8 +137,8 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           {/* カテゴリ別内訳 */}
           {report.categoryBreakdown.length > 0 ? (
@@ -201,3 +200,5 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({ className }) => {
     </Box>
   );
 };
+
+export default MonthlyReport;

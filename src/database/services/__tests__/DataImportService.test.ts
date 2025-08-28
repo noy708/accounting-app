@@ -7,8 +7,12 @@ import { Transaction, Category } from '../../../types';
 jest.mock('../../repositories/TransactionRepository');
 jest.mock('../../repositories/CategoryRepository');
 
-const MockedTransactionRepository = TransactionRepository as jest.MockedClass<typeof TransactionRepository>;
-const MockedCategoryRepository = CategoryRepository as jest.MockedClass<typeof CategoryRepository>;
+const MockedTransactionRepository = TransactionRepository as jest.MockedClass<
+  typeof TransactionRepository
+>;
+const MockedCategoryRepository = CategoryRepository as jest.MockedClass<
+  typeof CategoryRepository
+>;
 
 describe('DataImportService', () => {
   let service: DataImportService;
@@ -23,7 +27,7 @@ describe('DataImportService', () => {
       type: 'expense',
       isDefault: true,
       createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01')
+      updatedAt: new Date('2024-01-01'),
     },
     {
       id: 'cat2',
@@ -32,8 +36,8 @@ describe('DataImportService', () => {
       type: 'income',
       isDefault: true,
       createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01')
-    }
+      updatedAt: new Date('2024-01-01'),
+    },
   ];
 
   const mockTransactions: Transaction[] = [
@@ -45,13 +49,13 @@ describe('DataImportService', () => {
       categoryId: 'cat1',
       type: 'expense',
       createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15')
-    }
+      updatedAt: new Date('2024-01-15'),
+    },
   ];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockTransactionRepo = {
       create: jest.fn(),
       update: jest.fn(),
@@ -78,7 +82,7 @@ describe('DataImportService', () => {
     const defaultOptions: ImportOptions = {
       skipDuplicates: true,
       updateExisting: false,
-      createMissingCategories: true
+      createMissingCategories: true,
     };
 
     beforeEach(() => {
@@ -97,10 +101,14 @@ describe('DataImportService', () => {
         type: 'expense',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
-      const result = await service.importFromCSV(undefined, categoryCsv, defaultOptions);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions
+      );
 
       expect(result.categories.imported).toBe(1);
       expect(result.categories.skipped).toBe(0);
@@ -109,7 +117,7 @@ describe('DataImportService', () => {
       expect(mockCategoryRepo.create).toHaveBeenCalledWith({
         name: '交通費',
         color: '#2196F3',
-        type: 'expense'
+        type: 'expense',
       });
     });
 
@@ -125,10 +133,14 @@ describe('DataImportService', () => {
         categoryId: 'cat1',
         type: 'expense',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(1);
       expect(result.transactions.skipped).toBe(0);
@@ -139,7 +151,7 @@ describe('DataImportService', () => {
         amount: -500,
         description: 'コーヒー',
         categoryId: 'cat1',
-        type: 'expense'
+        type: 'expense',
       });
     });
 
@@ -147,7 +159,11 @@ describe('DataImportService', () => {
       const transactionCsv = `日付,金額,種類,カテゴリ,説明,作成日時,更新日時
 "2024/01/15","-1000","支出","食費","ランチ","2024-01-15 12:00:00","2024-01-15 12:00:00"`;
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(0);
       expect(result.transactions.skipped).toBe(1);
@@ -159,7 +175,11 @@ describe('DataImportService', () => {
       const categoryCsv = `カテゴリ名,色,種類,デフォルト,作成日時,更新日時
 "食費","#FF5722","支出","はい","2024-01-01 00:00:00","2024-01-01 00:00:00"`;
 
-      const result = await service.importFromCSV(undefined, categoryCsv, defaultOptions);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions
+      );
 
       expect(result.categories.imported).toBe(0);
       expect(result.categories.skipped).toBe(1);
@@ -174,17 +194,21 @@ describe('DataImportService', () => {
       const options: ImportOptions = {
         skipDuplicates: false,
         updateExisting: true,
-        createMissingCategories: true
+        createMissingCategories: true,
       };
 
-      const result = await service.importFromCSV(undefined, categoryCsv, options);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        options
+      );
 
       expect(result.categories.imported).toBe(1);
       expect(result.categories.skipped).toBe(0);
       expect(result.categories.errors).toBe(0);
       expect(mockCategoryRepo.update).toHaveBeenCalledWith('cat1', {
         color: '#FF9800',
-        type: 'expense'
+        type: 'expense',
       });
     });
 
@@ -194,7 +218,11 @@ describe('DataImportService', () => {
 "交通費","","支出","いいえ","2024-01-01 00:00:00","2024-01-01 00:00:00"
 "光熱費","#FFC107","無効","いいえ","2024-01-01 00:00:00","2024-01-01 00:00:00"`;
 
-      const result = await service.importFromCSV(undefined, categoryCsv, defaultOptions);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions
+      );
 
       expect(result.categories.imported).toBe(0);
       expect(result.categories.skipped).toBe(0);
@@ -202,7 +230,9 @@ describe('DataImportService', () => {
       expect(result.errors).toHaveLength(3); // 3 rows with errors
       expect(result.errors[0].message).toContain('カテゴリ名は必須です');
       expect(result.errors[1].message).toContain('色は必須です');
-      expect(result.errors[2].message).toContain('種類は「収入」「支出」「両方」のいずれかである必要があります');
+      expect(result.errors[2].message).toContain(
+        '種類は「収入」「支出」「両方」のいずれかである必要があります'
+      );
     });
 
     it('should handle validation errors for transactions', async () => {
@@ -213,35 +243,57 @@ describe('DataImportService', () => {
 "2024/01/20","-500","支出","存在しないカテゴリ","テスト","2024-01-20 10:00:00","2024-01-20 10:00:00"
 "2024/01/20","-500","支出","食費","","2024-01-20 10:00:00","2024-01-20 10:00:00"`;
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(0);
       expect(result.transactions.skipped).toBe(0);
       expect(result.transactions.errors).toBe(5);
       expect(result.errors).toHaveLength(5);
-      expect(result.errors[0].message).toContain('日付の形式が正しくありません');
-      expect(result.errors[1].message).toContain('金額は数値である必要があります');
-      expect(result.errors[2].message).toContain('種類は「収入」または「支出」である必要があります');
-      expect(result.errors[3].message).toContain('カテゴリ「存在しないカテゴリ」が見つかりません');
+      expect(result.errors[0].message).toContain(
+        '日付の形式が正しくありません'
+      );
+      expect(result.errors[1].message).toContain(
+        '金額は数値である必要があります'
+      );
+      expect(result.errors[2].message).toContain(
+        '種類は「収入」または「支出」である必要があります'
+      );
+      expect(result.errors[3].message).toContain(
+        'カテゴリ「存在しないカテゴリ」が見つかりません'
+      );
       expect(result.errors[4].message).toContain('説明は必須です');
     });
 
     it('should handle CSV parsing errors', async () => {
       const invalidCsv = 'invalid,csv,format';
 
-      const result = await service.importFromCSV(invalidCsv, undefined, defaultOptions);
-      
+      const result = await service.importFromCSV(
+        invalidCsv,
+        undefined,
+        defaultOptions
+      );
+
       expect(result.transactions.imported).toBe(0);
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors[0].message).toContain('CSVファイルにデータが含まれていません');
+      expect(result.errors[0].message).toContain(
+        'CSVファイルにデータが含まれていません'
+      );
     });
 
     it('should handle mismatched column count', async () => {
       const invalidCsv = `日付,金額,種類,カテゴリ,説明
 "2024/01/20","-500","支出"`;
 
-      const result = await service.importFromCSV(invalidCsv, undefined, defaultOptions);
-      
+      const result = await service.importFromCSV(
+        invalidCsv,
+        undefined,
+        defaultOptions
+      );
+
       expect(result.transactions.imported).toBe(0);
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.errors[0].message).toContain('列数が一致しません');
@@ -259,10 +311,14 @@ describe('DataImportService', () => {
         categoryId: 'cat1',
         type: 'expense',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(1);
       expect(mockTransactionRepo.create).toHaveBeenCalledWith({
@@ -270,7 +326,7 @@ describe('DataImportService', () => {
         amount: -500,
         description: 'コーヒー, ケーキ',
         categoryId: 'cat1',
-        type: 'expense'
+        type: 'expense',
       });
     });
 
@@ -285,16 +341,20 @@ describe('DataImportService', () => {
         type: 'expense',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
-      const result = await service.importFromCSV(undefined, categoryCsv, defaultOptions);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions
+      );
 
       expect(result.categories.imported).toBe(1);
       expect(mockCategoryRepo.create).toHaveBeenCalledWith({
         name: 'カテゴリ"テスト"',
         color: '#FF5722',
-        type: 'expense'
+        type: 'expense',
       });
     });
 
@@ -304,27 +364,32 @@ describe('DataImportService', () => {
 
       const progressCallback = jest.fn();
 
-      await service.importFromCSV(undefined, categoryCsv, defaultOptions, progressCallback);
+      await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions,
+        progressCallback
+      );
 
       expect(progressCallback).toHaveBeenCalledWith({
         current: 0,
         total: 1,
         stage: 'parsing',
-        message: 'データを解析中...'
+        message: 'データを解析中...',
       });
 
       expect(progressCallback).toHaveBeenCalledWith({
         current: 0,
         total: 1,
         stage: 'importing',
-        message: 'カテゴリをインポート中...'
+        message: 'カテゴリをインポート中...',
       });
 
       expect(progressCallback).toHaveBeenCalledWith({
         current: 1,
         total: 1,
         stage: 'complete',
-        message: 'インポート完了'
+        message: 'インポート完了',
       });
     });
 
@@ -334,7 +399,11 @@ describe('DataImportService', () => {
 
       mockCategoryRepo.create.mockRejectedValue(new Error('Database error'));
 
-      const result = await service.importFromCSV(undefined, categoryCsv, defaultOptions);
+      const result = await service.importFromCSV(
+        undefined,
+        categoryCsv,
+        defaultOptions
+      );
 
       expect(result.categories.imported).toBe(0);
       expect(result.categories.errors).toBe(1);
@@ -348,19 +417,27 @@ describe('DataImportService', () => {
 
       mockTransactionRepo.create.mockResolvedValue({} as Transaction);
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
-
-
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(2);
-      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(1, expect.objectContaining({
-        amount: 1000, // Should be positive for income
-        type: 'income'
-      }));
-      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(2, expect.objectContaining({
-        amount: 1000, // Should remain positive for income
-        type: 'income'
-      }));
+      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          amount: 1000, // Should be positive for income
+          type: 'income',
+        })
+      );
+      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          amount: 1000, // Should remain positive for income
+          type: 'income',
+        })
+      );
     });
 
     it('should correctly handle expense amount signs', async () => {
@@ -370,17 +447,27 @@ describe('DataImportService', () => {
 
       mockTransactionRepo.create.mockResolvedValue({} as Transaction);
 
-      const result = await service.importFromCSV(transactionCsv, undefined, defaultOptions);
+      const result = await service.importFromCSV(
+        transactionCsv,
+        undefined,
+        defaultOptions
+      );
 
       expect(result.transactions.imported).toBe(2);
-      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(1, expect.objectContaining({
-        amount: -1000, // Should be negative for expense
-        type: 'expense'
-      }));
-      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(2, expect.objectContaining({
-        amount: -1000, // Should remain negative for expense
-        type: 'expense'
-      }));
+      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          amount: -1000, // Should be negative for expense
+          type: 'expense',
+        })
+      );
+      expect(mockTransactionRepo.create).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          amount: -1000, // Should remain negative for expense
+          type: 'expense',
+        })
+      );
     });
   });
 });

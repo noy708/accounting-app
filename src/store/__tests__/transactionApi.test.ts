@@ -4,7 +4,9 @@ import { Transaction, CreateTransactionDto } from '../../types';
 // Mock the repository
 jest.mock('../../database/repositories/TransactionRepository');
 
-const mockTransactionRepository = transactionRepository as jest.Mocked<typeof transactionRepository>;
+const mockTransactionRepository = transactionRepository as jest.Mocked<
+  typeof transactionRepository
+>;
 
 const mockTransaction: Transaction = {
   id: '1',
@@ -25,7 +27,9 @@ describe('transactionApi integration', () => {
   describe('repository integration', () => {
     it('should call getTransactions with correct parameters', async () => {
       const mockTransactions = [mockTransaction];
-      mockTransactionRepository.getTransactions.mockResolvedValue(mockTransactions);
+      mockTransactionRepository.getTransactions.mockResolvedValue(
+        mockTransactions
+      );
 
       const result = await mockTransactionRepository.getTransactions();
 
@@ -39,16 +43,22 @@ describe('transactionApi integration', () => {
 
       await mockTransactionRepository.getTransactions(filter);
 
-      expect(mockTransactionRepository.getTransactions).toHaveBeenCalledWith(filter);
+      expect(mockTransactionRepository.getTransactions).toHaveBeenCalledWith(
+        filter
+      );
     });
 
     it('should call getTransactionById with correct ID', async () => {
-      mockTransactionRepository.getTransactionById.mockResolvedValue(mockTransaction);
+      mockTransactionRepository.getTransactionById.mockResolvedValue(
+        mockTransaction
+      );
 
       const result = await mockTransactionRepository.getTransactionById('1');
 
       expect(result).toEqual(mockTransaction);
-      expect(mockTransactionRepository.getTransactionById).toHaveBeenCalledWith('1');
+      expect(mockTransactionRepository.getTransactionById).toHaveBeenCalledWith(
+        '1'
+      );
     });
 
     it('should call createTransaction with correct data', async () => {
@@ -60,24 +70,37 @@ describe('transactionApi integration', () => {
         type: 'income',
       };
 
-      mockTransactionRepository.createTransaction.mockResolvedValue(mockTransaction);
+      mockTransactionRepository.createTransaction.mockResolvedValue(
+        mockTransaction
+      );
 
-      const result = await mockTransactionRepository.createTransaction(createDto);
+      const result =
+        await mockTransactionRepository.createTransaction(createDto);
 
       expect(result).toEqual(mockTransaction);
-      expect(mockTransactionRepository.createTransaction).toHaveBeenCalledWith(createDto);
+      expect(mockTransactionRepository.createTransaction).toHaveBeenCalledWith(
+        createDto
+      );
     });
 
     it('should call updateTransaction with correct parameters', async () => {
       const updateData = { description: 'Updated description' };
       const updatedTransaction = { ...mockTransaction, ...updateData };
 
-      mockTransactionRepository.updateTransaction.mockResolvedValue(updatedTransaction);
+      mockTransactionRepository.updateTransaction.mockResolvedValue(
+        updatedTransaction
+      );
 
-      const result = await mockTransactionRepository.updateTransaction('1', updateData);
+      const result = await mockTransactionRepository.updateTransaction(
+        '1',
+        updateData
+      );
 
       expect(result).toEqual(updatedTransaction);
-      expect(mockTransactionRepository.updateTransaction).toHaveBeenCalledWith('1', updateData);
+      expect(mockTransactionRepository.updateTransaction).toHaveBeenCalledWith(
+        '1',
+        updateData
+      );
     });
 
     it('should call deleteTransaction with correct ID', async () => {
@@ -85,7 +108,9 @@ describe('transactionApi integration', () => {
 
       await mockTransactionRepository.deleteTransaction('1');
 
-      expect(mockTransactionRepository.deleteTransaction).toHaveBeenCalledWith('1');
+      expect(mockTransactionRepository.deleteTransaction).toHaveBeenCalledWith(
+        '1'
+      );
     });
 
     it('should call getTransactionStats with correct parameters', async () => {
@@ -96,12 +121,16 @@ describe('transactionApi integration', () => {
         count: 2,
       };
 
-      mockTransactionRepository.getTransactionStats.mockResolvedValue(mockStats);
+      mockTransactionRepository.getTransactionStats.mockResolvedValue(
+        mockStats
+      );
 
       const result = await mockTransactionRepository.getTransactionStats();
 
       expect(result).toEqual(mockStats);
-      expect(mockTransactionRepository.getTransactionStats).toHaveBeenCalledWith();
+      expect(
+        mockTransactionRepository.getTransactionStats
+      ).toHaveBeenCalledWith();
     });
   });
 });

@@ -1,6 +1,10 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { AppLayout, Dashboard } from './components';
+import { store } from './store/index';
+import { AppLayout } from './components';
+import AppRoutes from './routes/AppRoutes';
 
 const theme = createTheme({
   palette: {
@@ -15,11 +19,15 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <AppLayout>
-        <Dashboard />
-      </AppLayout>
-    </ThemeProvider>
+    <Provider store={store}>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <AppLayout>
+            <AppRoutes />
+          </AppLayout>
+        </ThemeProvider>
+      </BrowserRouter>
+    </Provider>
   );
 }
 

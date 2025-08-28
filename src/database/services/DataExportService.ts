@@ -44,7 +44,7 @@ export class DataExportService {
       current: 0,
       total: totalSteps,
       stage: 'preparing',
-      message: 'エクスポートを準備中...'
+      message: 'エクスポートを準備中...',
     });
 
     try {
@@ -54,10 +54,10 @@ export class DataExportService {
           current: currentStep,
           total: totalSteps,
           stage: 'exporting',
-          message: 'カテゴリをエクスポート中...'
+          message: 'カテゴリをエクスポート中...',
         });
 
-        const categories = await this.categoryRepo.getAll();
+        const categories = await this.categoryRepo.getCategories();
         result.categories = this.generateCategoriesCSV(categories);
         currentStep++;
       }
@@ -68,7 +68,7 @@ export class DataExportService {
           current: currentStep,
           total: totalSteps,
           stage: 'exporting',
-          message: '取引をエクスポート中...'
+          message: '取引をエクスポート中...',
         });
 
         const filter: TransactionFilter = {};
@@ -78,17 +78,22 @@ export class DataExportService {
         }
 
         const transactions = await this.transactionRepo.getTransactions(filter);
-        
+
         // Filter by category if specified
         const filteredTransactions = options.categoryIds?.length
-          ? transactions.filter(t => options.categoryIds!.includes(t.categoryId))
+          ? transactions.filter((t) =>
+            options.categoryIds!.includes(t.categoryId)
+          )
           : transactions;
 
         // Get categories for lookup
-        const categories = await this.categoryRepo.getAll();
-        const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+        const categories = await this.categoryRepo.getCategories();
+        const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
 
-        result.transactions = this.generateTransactionsCSV(filteredTransactions, categoryMap);
+        result.transactions = this.generateTransactionsCSV(
+          filteredTransactions,
+          categoryMap
+        );
         currentStep++;
       }
 
@@ -96,16 +101,21 @@ export class DataExportService {
         current: totalSteps,
         total: totalSteps,
         stage: 'complete',
-        message: 'エクスポート完了'
+        message: 'エクスポート完了',
       });
 
       return result;
     } catch (error) {
-      throw new Error(`エクスポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `エクスポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  private generateTransactionsCSV(transactions: Transaction[], categoryMap: Map<string, string>): string {
+  private generateTransactionsCSV(
+    transactions: Transaction[],
+    categoryMap: Map<string, string>
+  ): string {
     const headers = [
       '日付',
       '金額',
@@ -113,20 +123,20 @@ export class DataExportService {
       'カテゴリ',
       '説明',
       '作成日時',
-      '更新日時'
+      '更新日時',
     ];
 
-    const rows = transactions.map(transaction => [
+    const rows = transactions.map((transaction) => [
       this.formatDate(transaction.date),
       transaction.amount.toString(),
       transaction.type === 'income' ? '収入' : '支出',
       categoryMap.get(transaction.categoryId) || 'Unknown',
       `"${transaction.description.replace(/"/g, '""')}"`, // Escape quotes
       this.formatDateTime(transaction.createdAt),
-      this.formatDateTime(transaction.updatedAt)
+      this.formatDateTime(transaction.updatedAt),
     ]);
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
   private generateCategoriesCSV(categories: Category[]): string {
@@ -136,26 +146,30 @@ export class DataExportService {
       '種類',
       'デフォルト',
       '作成日時',
-      '更新日時'
+      '更新日時',
     ];
 
-    const rows = categories.map(category => [
+    const rows = categories.map((category) => [
       `"${category.name.replace(/"/g, '""')}"`, // Escape quotes
       category.color,
-      category.type === 'income' ? '収入' : category.type === 'expense' ? '支出' : '両方',
+      category.type === 'income'
+        ? '収入'
+        : category.type === 'expense'
+          ? '支出'
+          : '両方',
       category.isDefault ? 'はい' : 'いいえ',
       this.formatDateTime(category.createdAt),
-      this.formatDateTime(category.updatedAt)
+      this.formatDateTime(category.updatedAt),
     ]);
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
   private formatDate(date: Date): string {
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     });
   }
 
@@ -166,7 +180,7 @@ export class DataExportService {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   }
 
@@ -175,7 +189,7 @@ export class DataExportService {
     const BOM = '\uFEFF';
     const blob = new Blob([BOM + content], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    
+
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);

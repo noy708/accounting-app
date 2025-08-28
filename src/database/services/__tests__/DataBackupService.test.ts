@@ -1,4 +1,9 @@
-import { DataBackupService, BackupData, BackupOptions, RestoreOptions } from '../DataBackupService';
+import {
+  DataBackupService,
+  BackupData,
+  BackupOptions,
+  RestoreOptions,
+} from '../DataBackupService';
 
 // Mock localStorage
 const localStorageMock = {
@@ -7,11 +12,11 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
   key: jest.fn(),
-  length: 0
+  length: 0,
 };
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 // Mock URL.createObjectURL and related functions
@@ -23,7 +28,7 @@ const mockLink = {
   href: '',
   download: '',
   style: { visibility: '' },
-  click: jest.fn()
+  click: jest.fn(),
 };
 
 document.createElement = jest.fn().mockImplementation((tagName) => {
@@ -49,9 +54,9 @@ jest.mock('../../repositories/TransactionRepository', () => {
         categoryId: 'cat1',
         type: 'income',
         createdAt: new Date(),
-        updatedAt: new Date()
-      })
-    }))
+        updatedAt: new Date(),
+      }),
+    })),
   };
 });
 
@@ -66,9 +71,9 @@ jest.mock('../../repositories/CategoryRepository', () => {
         type: 'income',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
-      })
-    }))
+        updatedAt: new Date(),
+      }),
+    })),
   };
 });
 
@@ -91,7 +96,7 @@ describe('DataBackupService', () => {
     it('should create backup with all data', async () => {
       const options: BackupOptions = {
         includeTransactions: true,
-        includeCategories: true
+        includeCategories: true,
       };
 
       const result = await service.createManualBackup(options);
@@ -106,7 +111,7 @@ describe('DataBackupService', () => {
     it('should create backup with only transactions', async () => {
       const options: BackupOptions = {
         includeTransactions: true,
-        includeCategories: false
+        includeCategories: false,
       };
 
       const result = await service.createManualBackup(options);
@@ -117,7 +122,7 @@ describe('DataBackupService', () => {
     it('should create backup with only categories', async () => {
       const options: BackupOptions = {
         includeTransactions: false,
-        includeCategories: true
+        includeCategories: true,
       };
 
       const result = await service.createManualBackup(options);
@@ -129,7 +134,7 @@ describe('DataBackupService', () => {
       const progressCallback = jest.fn();
       const options: BackupOptions = {
         includeTransactions: true,
-        includeCategories: true
+        includeCategories: true,
       };
 
       await service.createManualBackup(options, progressCallback);
@@ -139,7 +144,7 @@ describe('DataBackupService', () => {
           current: expect.any(Number),
           total: 100,
           stage: expect.any(String),
-          message: expect.any(String)
+          message: expect.any(String),
         })
       );
     });
@@ -155,10 +160,10 @@ describe('DataBackupService', () => {
         metadata: {
           transactionCount: 0,
           categoryCount: 0,
-          checksum: 'valid-checksum'
+          checksum: 'valid-checksum',
         },
         transactions: [],
-        categories: []
+        categories: [],
       };
     });
 
@@ -168,7 +173,9 @@ describe('DataBackupService', () => {
       const result = await service.validateBackupIntegrity(validBackupData);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('バックアップファイルにバージョン情報がありません');
+      expect(result.errors).toContain(
+        'バックアップファイルにバージョン情報がありません'
+      );
     });
 
     it('should detect missing metadata', async () => {
@@ -177,7 +184,9 @@ describe('DataBackupService', () => {
       const result = await service.validateBackupIntegrity(validBackupData);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('バックアップファイルにメタデータがありません');
+      expect(result.errors).toContain(
+        'バックアップファイルにメタデータがありません'
+      );
     });
 
     it('should detect transaction count mismatch', async () => {
@@ -209,10 +218,10 @@ describe('DataBackupService', () => {
         metadata: {
           transactionCount: 0,
           categoryCount: 0,
-          checksum: 'valid-checksum'
+          checksum: 'valid-checksum',
         },
         transactions: [],
-        categories: []
+        categories: [],
       };
     });
 
@@ -220,7 +229,7 @@ describe('DataBackupService', () => {
       const options: RestoreOptions = {
         skipDuplicates: true,
         validateIntegrity: false, // Skip integrity check for this test
-        createMissingCategories: false
+        createMissingCategories: false,
       };
 
       const result = await service.restoreFromBackup(backupData, options);
@@ -233,7 +242,7 @@ describe('DataBackupService', () => {
       const options: RestoreOptions = {
         skipDuplicates: true,
         validateIntegrity: true,
-        createMissingCategories: false
+        createMissingCategories: false,
       };
 
       // Set invalid checksum
@@ -260,7 +269,9 @@ describe('DataBackupService', () => {
 
       service.startAutoBackup(60);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Auto backup started with 60 minute interval');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Auto backup started with 60 minute interval'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -284,7 +295,7 @@ describe('DataBackupService', () => {
         timestamp: new Date('2024-01-01'),
         metadata: { transactionCount: 0, categoryCount: 0, checksum: 'test' },
         transactions: [],
-        categories: []
+        categories: [],
       };
 
       service.downloadBackup(backupData);
@@ -300,7 +311,7 @@ describe('DataBackupService', () => {
         timestamp: new Date(),
         metadata: { transactionCount: 0, categoryCount: 0, checksum: 'test' },
         transactions: [],
-        categories: []
+        categories: [],
       };
 
       service.downloadBackup(backupData, 'custom_backup.json');
@@ -324,25 +335,29 @@ describe('DataBackupService', () => {
         version: '1.0.0',
         timestamp: '2024-01-01T00:00:00.000Z',
         metadata: { transactionCount: 1, categoryCount: 1, checksum: 'test' },
-        transactions: [{
-          id: '1',
-          date: '2024-01-01T00:00:00.000Z',
-          amount: 1000,
-          description: 'Test',
-          categoryId: 'cat1',
-          type: 'income',
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z'
-        }],
-        categories: [{
-          id: 'cat1',
-          name: 'Test Category',
-          color: '#FF0000',
-          type: 'income',
-          isDefault: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z'
-        }]
+        transactions: [
+          {
+            id: '1',
+            date: '2024-01-01T00:00:00.000Z',
+            amount: 1000,
+            description: 'Test',
+            categoryId: 'cat1',
+            type: 'income',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+          },
+        ],
+        categories: [
+          {
+            id: 'cat1',
+            name: 'Test Category',
+            color: '#FF0000',
+            type: 'income',
+            isDefault: false,
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+          },
+        ],
       };
 
       Object.keys = jest.fn().mockReturnValue(['auto_backup_1234567890']);
@@ -375,9 +390,15 @@ describe('DataBackupService', () => {
     it('should generate consistent checksum for same data', async () => {
       const transactions: any[] = [];
       const categories: any[] = [];
-      
-      const checksum1 = await (service as any).calculateChecksum(transactions, categories);
-      const checksum2 = await (service as any).calculateChecksum(transactions, categories);
+
+      const checksum1 = await (service as any).calculateChecksum(
+        transactions,
+        categories
+      );
+      const checksum2 = await (service as any).calculateChecksum(
+        transactions,
+        categories
+      );
 
       expect(checksum1).toBe(checksum2);
       expect(typeof checksum1).toBe('string');
@@ -388,9 +409,15 @@ describe('DataBackupService', () => {
       const transactions1: any[] = [];
       const transactions2: any[] = [{ id: '1', amount: 1000 }];
       const categories: any[] = [];
-      
-      const checksum1 = await (service as any).calculateChecksum(transactions1, categories);
-      const checksum2 = await (service as any).calculateChecksum(transactions2, categories);
+
+      const checksum1 = await (service as any).calculateChecksum(
+        transactions1,
+        categories
+      );
+      const checksum2 = await (service as any).calculateChecksum(
+        transactions2,
+        categories
+      );
 
       expect(checksum1).not.toBe(checksum2);
     });

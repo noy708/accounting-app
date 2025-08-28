@@ -3,7 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ErrorBoundary from '../ErrorBoundary';
 
 // Mock component that throws an error
-const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = false }) => {
+const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({
+  shouldThrow = false,
+}) => {
   if (shouldThrow) {
     throw new Error('Test error message');
   }
@@ -73,7 +75,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('予期しないエラーが発生しました')).toBeInTheDocument();
+    expect(
+      screen.getByText('予期しないエラーが発生しました')
+    ).toBeInTheDocument();
     expect(screen.getByText('エラーが発生しました')).toBeInTheDocument();
     expect(screen.getByText('再試行')).toBeInTheDocument();
     expect(screen.getByText('ページを再読み込み')).toBeInTheDocument();
@@ -104,7 +108,9 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText('Custom error message')).toBeInTheDocument();
-    expect(screen.queryByText('予期しないエラーが発生しました')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('予期しないエラーが発生しました')
+    ).not.toBeInTheDocument();
   });
 
   it('handles retry button click', () => {
@@ -114,7 +120,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('予期しないエラーが発生しました')).toBeInTheDocument();
+    expect(
+      screen.getByText('予期しないエラーが発生しました')
+    ).toBeInTheDocument();
 
     const retryButton = screen.getByText('再試行');
     fireEvent.click(retryButton);
@@ -122,7 +130,9 @@ describe('ErrorBoundary', () => {
     // After retry, the error boundary resets its state and tries to render children again
     // Since we're still passing shouldThrow=true, it will error again
     // But we can verify the retry mechanism works by checking the error UI is still there
-    expect(screen.getByText('予期しないエラーが発生しました')).toBeInTheDocument();
+    expect(
+      screen.getByText('予期しないエラーが発生しました')
+    ).toBeInTheDocument();
   });
 
   it('handles page reload button click', () => {
@@ -157,7 +167,7 @@ describe('ErrorBoundary', () => {
       message: `Error ${i}`,
       timestamp: new Date().toISOString(),
     }));
-    
+
     mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingErrors));
 
     render(
@@ -201,7 +211,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.queryByText('エラー詳細 (開発者向け)')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('エラー詳細 (開発者向け)')
+    ).not.toBeInTheDocument();
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -242,9 +254,9 @@ describe('ErrorBoundary', () => {
     fireEvent.click(detailsButton);
 
     const copyButton = screen.getByText('エラー情報をコピー');
-    
+
     // Wait for the click to be processed
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       fireEvent.click(copyButton);
       setTimeout(resolve, 0);
     });
@@ -274,17 +286,19 @@ describe('ErrorBoundary', () => {
     fireEvent.click(detailsButton);
 
     const copyButton = screen.getByText('エラー情報をコピー');
-    
+
     // Wait for the click to be processed
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       fireEvent.click(copyButton);
       setTimeout(resolve, 100);
     });
 
     // Wait a bit more for the promise to reject
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(console.error).toHaveBeenCalledWith('Failed to copy error to clipboard');
+    expect(console.error).toHaveBeenCalledWith(
+      'Failed to copy error to clipboard'
+    );
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -300,6 +314,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(console.error).toHaveBeenCalledWith('Failed to store error report:', expect.any(Error));
+    expect(console.error).toHaveBeenCalledWith(
+      'Failed to store error report:',
+      expect.any(Error)
+    );
   });
 });

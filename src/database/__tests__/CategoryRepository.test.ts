@@ -65,7 +65,10 @@ describe('CategoryRepository', () => {
 
     it('should create a category successfully', async () => {
       // Setup
-      mockDb.categories.where().equalsIgnoreCase().first.mockResolvedValue(null);
+      mockDb.categories
+        .where()
+        .equalsIgnoreCase()
+        .first.mockResolvedValue(null);
       mockDb.categories.add.mockResolvedValue('test-id');
 
       // Execute
@@ -91,12 +94,12 @@ describe('CategoryRepository', () => {
       const invalidDto = { ...validCategoryDto, name: '' };
 
       // Execute & Verify
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        'カテゴリ名は必須です'
-      );
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow('カテゴリ名は必須です');
     });
 
     it('should throw validation error for invalid color format', async () => {
@@ -104,12 +107,12 @@ describe('CategoryRepository', () => {
       const invalidDto = { ...validCategoryDto, color: 'invalid-color' };
 
       // Execute & Verify
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        'カラーは有効なHEX形式'
-      );
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow('カラーは有効なHEX形式');
     });
 
     it('should throw validation error for invalid type', async () => {
@@ -117,26 +120,34 @@ describe('CategoryRepository', () => {
       const invalidDto = { ...validCategoryDto, type: 'invalid' as any };
 
       // Execute & Verify
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow(
         'カテゴリタイプは収入、支出、または両方である必要があります'
       );
     });
 
     it('should throw error for duplicate category name', async () => {
       // Setup
-      const existingCategory = { id: 'existing-id', name: validCategoryDto.name };
-      mockDb.categories.where().equalsIgnoreCase().first.mockResolvedValue(existingCategory);
+      const existingCategory = {
+        id: 'existing-id',
+        name: validCategoryDto.name,
+      };
+      mockDb.categories
+        .where()
+        .equalsIgnoreCase()
+        .first.mockResolvedValue(existingCategory);
 
       // Execute & Verify
-      await expect(categoryRepository.createCategory(validCategoryDto)).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.createCategory(validCategoryDto)).rejects.toThrow(
-        '同じ名前のカテゴリが既に存在します'
-      );
+      await expect(
+        categoryRepository.createCategory(validCategoryDto)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.createCategory(validCategoryDto)
+      ).rejects.toThrow('同じ名前のカテゴリが既に存在します');
     });
 
     it('should throw error for name longer than 50 characters', async () => {
@@ -145,12 +156,12 @@ describe('CategoryRepository', () => {
       const invalidDto = { ...validCategoryDto, name: longName };
 
       // Execute & Verify
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.createCategory(invalidDto)).rejects.toThrow(
-        'カテゴリ名は50文字以内で入力してください'
-      );
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.createCategory(invalidDto)
+      ).rejects.toThrow('カテゴリ名は50文字以内で入力してください');
     });
   });
 
@@ -173,15 +184,22 @@ describe('CategoryRepository', () => {
     it('should update a category successfully', async () => {
       // Setup
       mockDb.categories.get.mockResolvedValue(existingCategory);
-      mockDb.categories.where().equalsIgnoreCase().first.mockResolvedValue(null);
+      mockDb.categories
+        .where()
+        .equalsIgnoreCase()
+        .first.mockResolvedValue(null);
       mockDb.categories.update.mockResolvedValue(1);
 
       const updatedCategory = { ...existingCategory, ...updateDto };
-      mockDb.categories.get.mockResolvedValueOnce(existingCategory)
+      mockDb.categories.get
+        .mockResolvedValueOnce(existingCategory)
         .mockResolvedValueOnce(updatedCategory);
 
       // Execute
-      const result = await categoryRepository.updateCategory('test-id', updateDto);
+      const result = await categoryRepository.updateCategory(
+        'test-id',
+        updateDto
+      );
 
       // Verify
       expect(result.name).toBe(updateDto.name);
@@ -212,7 +230,10 @@ describe('CategoryRepository', () => {
       // Setup
       mockDb.categories.get.mockResolvedValue(existingCategory);
       const duplicateCategory = { id: 'other-id', name: updateDto.name };
-      mockDb.categories.where().equalsIgnoreCase().first.mockResolvedValue(duplicateCategory);
+      mockDb.categories
+        .where()
+        .equalsIgnoreCase()
+        .first.mockResolvedValue(duplicateCategory);
 
       // Execute & Verify
       await expect(
@@ -230,11 +251,15 @@ describe('CategoryRepository', () => {
       mockDb.categories.update.mockResolvedValue(1);
 
       const updatedCategory = { ...existingCategory, ...sameNameUpdate };
-      mockDb.categories.get.mockResolvedValueOnce(existingCategory)
+      mockDb.categories.get
+        .mockResolvedValueOnce(existingCategory)
         .mockResolvedValueOnce(updatedCategory);
 
       // Execute
-      const result = await categoryRepository.updateCategory('test-id', sameNameUpdate);
+      const result = await categoryRepository.updateCategory(
+        'test-id',
+        sameNameUpdate
+      );
 
       // Verify
       expect(result).toBeDefined();
@@ -271,12 +296,12 @@ describe('CategoryRepository', () => {
       mockDb.categories.get.mockResolvedValue(null);
 
       // Execute & Verify
-      await expect(categoryRepository.deleteCategory('non-existent-id')).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.deleteCategory('non-existent-id')).rejects.toThrow(
-        'カテゴリが見つかりません'
-      );
+      await expect(
+        categoryRepository.deleteCategory('non-existent-id')
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.deleteCategory('non-existent-id')
+      ).rejects.toThrow('カテゴリが見つかりません');
     });
 
     it('should throw error when category is in use', async () => {
@@ -285,12 +310,12 @@ describe('CategoryRepository', () => {
       mockDb.transactions.where().equals().count.mockResolvedValue(5); // 5 transactions using this category
 
       // Execute & Verify
-      await expect(categoryRepository.deleteCategory('test-id')).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.deleteCategory('test-id')).rejects.toThrow(
-        'このカテゴリは取引で使用されているため削除できません'
-      );
+      await expect(
+        categoryRepository.deleteCategory('test-id')
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.deleteCategory('test-id')
+      ).rejects.toThrow('このカテゴリは取引で使用されているため削除できません');
     });
 
     it('should throw error when trying to delete default category', async () => {
@@ -300,12 +325,12 @@ describe('CategoryRepository', () => {
       mockDb.transactions.where().equals().count.mockResolvedValue(0);
 
       // Execute & Verify
-      await expect(categoryRepository.deleteCategory('test-id')).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.deleteCategory('test-id')).rejects.toThrow(
-        'デフォルトカテゴリは削除できません'
-      );
+      await expect(
+        categoryRepository.deleteCategory('test-id')
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.deleteCategory('test-id')
+      ).rejects.toThrow('デフォルトカテゴリは削除できません');
     });
   });
 
@@ -387,12 +412,12 @@ describe('CategoryRepository', () => {
       mockDb.categories.get.mockResolvedValue(null);
 
       // Execute & Verify
-      await expect(categoryRepository.getCategoryById('non-existent-id')).rejects.toThrow(
-        DatabaseError
-      );
-      await expect(categoryRepository.getCategoryById('non-existent-id')).rejects.toThrow(
-        'カテゴリが見つかりません'
-      );
+      await expect(
+        categoryRepository.getCategoryById('non-existent-id')
+      ).rejects.toThrow(DatabaseError);
+      await expect(
+        categoryRepository.getCategoryById('non-existent-id')
+      ).rejects.toThrow('カテゴリが見つかりません');
     });
   });
 
@@ -431,7 +456,10 @@ describe('CategoryRepository', () => {
         name: '既存デフォルト',
         isDefault: true,
       };
-      mockDb.categories.where().equals().toArray.mockResolvedValue([existingDefaultCategory]);
+      mockDb.categories
+        .where()
+        .equals()
+        .toArray.mockResolvedValue([existingDefaultCategory]);
 
       // Execute
       await categoryRepository.createDefaultCategories();
@@ -490,14 +518,20 @@ describe('CategoryRepository', () => {
 
     it('should return categories by type including "both"', async () => {
       // Setup
-      mockDb.categories.where().anyOf().sortBy.mockResolvedValue(mockCategories);
+      mockDb.categories
+        .where()
+        .anyOf()
+        .sortBy.mockResolvedValue(mockCategories);
 
       // Execute
       const result = await categoryRepository.getCategoriesByType('expense');
 
       // Verify
       expect(result).toHaveLength(2);
-      expect(mockDb.categories.where().anyOf).toHaveBeenCalledWith(['expense', 'both']);
+      expect(mockDb.categories.where().anyOf).toHaveBeenCalledWith([
+        'expense',
+        'both',
+      ]);
     });
   });
 
@@ -537,7 +571,9 @@ describe('CategoryRepository', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
       };
 
-      const normalized = (categoryRepository as any).normalizeCategory(rawCategory);
+      const normalized = (categoryRepository as any).normalizeCategory(
+        rawCategory
+      );
 
       expect(normalized.createdAt).toBeInstanceOf(Date);
       expect(normalized.updatedAt).toBeInstanceOf(Date);

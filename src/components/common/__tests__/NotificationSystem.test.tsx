@@ -3,7 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import NotificationSystem from '../NotificationSystem';
-import errorSlice, { addNotification, clearExpiredNotifications } from '../../../store/slices/errorSlice';
+import errorSlice, {
+  addNotification,
+  clearExpiredNotifications,
+} from '../../../store/slices/errorSlice';
 
 // Mock store setup
 const createMockStore = (initialState = {}) => {
@@ -24,13 +27,12 @@ const createMockStore = (initialState = {}) => {
   });
 };
 
-const renderWithStore = (component: React.ReactElement, store = createMockStore()) => {
+const renderWithStore = (
+  component: React.ReactElement,
+  store = createMockStore()
+) => {
   return {
-    ...render(
-      <Provider store={store}>
-        {component}
-      </Provider>
-    ),
+    ...render(<Provider store={store}>{component}</Provider>),
     store,
   };
 };
@@ -112,7 +114,7 @@ describe('NotificationSystem', () => {
 
   it('clears expired notifications periodically', async () => {
     jest.useFakeTimers();
-    
+
     const store = createMockStore({
       notifications: [
         {
@@ -151,9 +153,9 @@ describe('NotificationSystem', () => {
     });
 
     renderWithStore(
-      <NotificationSystem 
-        position={{ vertical: 'bottom', horizontal: 'left' }} 
-      />, 
+      <NotificationSystem
+        position={{ vertical: 'bottom', horizontal: 'left' }}
+      />,
       store
     );
 
@@ -217,7 +219,7 @@ describe('NotificationSystem', () => {
 
     const notification = screen.getByText('Persistent notification');
     expect(notification).toBeInTheDocument();
-    
+
     // Persistent notifications should not auto-hide
     // The Snackbar should have autoHideDuration set to null
   });

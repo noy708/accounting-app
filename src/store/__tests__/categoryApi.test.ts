@@ -4,7 +4,9 @@ import { Category, CreateCategoryDto } from '../../types';
 // Mock the repository
 jest.mock('../../database/repositories/CategoryRepository');
 
-const mockCategoryRepository = categoryRepository as jest.Mocked<typeof categoryRepository>;
+const mockCategoryRepository = categoryRepository as jest.Mocked<
+  typeof categoryRepository
+>;
 
 const mockCategory: Category = {
   id: '1',
@@ -43,12 +45,17 @@ describe('categoryApi integration', () => {
 
     it('should call getCategoriesByType with correct type', async () => {
       const mockCategories = [mockCategory];
-      mockCategoryRepository.getCategoriesByType.mockResolvedValue(mockCategories);
+      mockCategoryRepository.getCategoriesByType.mockResolvedValue(
+        mockCategories
+      );
 
-      const result = await mockCategoryRepository.getCategoriesByType('expense');
+      const result =
+        await mockCategoryRepository.getCategoriesByType('expense');
 
       expect(result).toEqual(mockCategories);
-      expect(mockCategoryRepository.getCategoriesByType).toHaveBeenCalledWith('expense');
+      expect(mockCategoryRepository.getCategoriesByType).toHaveBeenCalledWith(
+        'expense'
+      );
     });
 
     it('should call createCategory with correct data', async () => {
@@ -63,7 +70,9 @@ describe('categoryApi integration', () => {
       const result = await mockCategoryRepository.createCategory(createDto);
 
       expect(result).toEqual(mockCategory);
-      expect(mockCategoryRepository.createCategory).toHaveBeenCalledWith(createDto);
+      expect(mockCategoryRepository.createCategory).toHaveBeenCalledWith(
+        createDto
+      );
     });
 
     it('should call updateCategory with correct parameters', async () => {
@@ -72,10 +81,16 @@ describe('categoryApi integration', () => {
 
       mockCategoryRepository.updateCategory.mockResolvedValue(updatedCategory);
 
-      const result = await mockCategoryRepository.updateCategory('1', updateData);
+      const result = await mockCategoryRepository.updateCategory(
+        '1',
+        updateData
+      );
 
       expect(result).toEqual(updatedCategory);
-      expect(mockCategoryRepository.updateCategory).toHaveBeenCalledWith('1', updateData);
+      expect(mockCategoryRepository.updateCategory).toHaveBeenCalledWith(
+        '1',
+        updateData
+      );
     });
 
     it('should call deleteCategory with correct ID', async () => {

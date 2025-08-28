@@ -52,11 +52,11 @@ describe('TransactionRepository', () => {
 
   beforeEach(async () => {
     repository = new TransactionRepository();
-    
+
     // データベースをリセット
     await dbConnection.reset();
     await dbConnection.initialize();
-    
+
     // テスト用カテゴリを追加
     await db.categories.add(mockCategory);
     await db.categories.add(mockIncomeCategory);
@@ -81,7 +81,9 @@ describe('TransactionRepository', () => {
     });
 
     it('収入取引を正常に作成できる', async () => {
-      const result = await repository.createTransaction(mockIncomeTransactionDto);
+      const result = await repository.createTransaction(
+        mockIncomeTransactionDto
+      );
 
       expect(result.id).toBeDefined();
       expect(result.amount).toBe(5000); // 収入は正の値
@@ -95,9 +97,9 @@ describe('TransactionRepository', () => {
         amount: undefined as any,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('存在しないカテゴリIDの場合はエラーを投げる', async () => {
@@ -106,9 +108,9 @@ describe('TransactionRepository', () => {
         categoryId: 'non-existent-category',
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('金額が0の場合はバリデーションエラーを投げる', async () => {
@@ -117,9 +119,9 @@ describe('TransactionRepository', () => {
         amount: 0,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('負の金額を入力した場合はバリデーションエラーを投げる', async () => {
@@ -128,23 +130,23 @@ describe('TransactionRepository', () => {
         amount: -1000,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('未来の日付の場合はバリデーションエラーを投げる', async () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 2);
-      
+
       const invalidDto = {
         ...mockTransactionDto,
         date: futureDate,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('説明文が500文字を超える場合はバリデーションエラーを投げる', async () => {
@@ -154,9 +156,9 @@ describe('TransactionRepository', () => {
         description: longDescription,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
   });
 
@@ -164,23 +166,29 @@ describe('TransactionRepository', () => {
     let createdTransaction: Transaction;
 
     beforeEach(async () => {
-      createdTransaction = await repository.createTransaction(mockTransactionDto);
+      createdTransaction =
+        await repository.createTransaction(mockTransactionDto);
     });
 
     it('取引を正常に更新できる', async () => {
       // 少し待ってから更新して、updatedAtが確実に異なるようにする
-      await new Promise(resolve => setTimeout(resolve, 1));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1));
+
       const updateDto: UpdateTransactionDto = {
         amount: 2000,
         description: '更新されたテスト取引',
       };
 
-      const result = await repository.updateTransaction(createdTransaction.id, updateDto);
+      const result = await repository.updateTransaction(
+        createdTransaction.id,
+        updateDto
+      );
 
       expect(result.amount).toBe(-2000); // 支出なので負の値
       expect(result.description).toBe('更新されたテスト取引');
-      expect(result.updatedAt.getTime()).toBeGreaterThanOrEqual(result.createdAt.getTime());
+      expect(result.updatedAt.getTime()).toBeGreaterThanOrEqual(
+        result.createdAt.getTime()
+      );
     });
 
     it('取引タイプを変更できる', async () => {
@@ -189,7 +197,10 @@ describe('TransactionRepository', () => {
         categoryId: mockIncomeCategory.id,
       };
 
-      const result = await repository.updateTransaction(createdTransaction.id, updateDto);
+      const result = await repository.updateTransaction(
+        createdTransaction.id,
+        updateDto
+      );
 
       expect(result.type).toBe('income');
       expect(result.amount).toBe(1000); // 収入に変更されたので正の値
@@ -200,9 +211,9 @@ describe('TransactionRepository', () => {
         amount: 2000,
       };
 
-      await expect(repository.updateTransaction('non-existent-id', updateDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(
+        repository.updateTransaction('non-existent-id', updateDto)
+      ).rejects.toThrow(DatabaseError);
     });
 
     it('存在しないカテゴリIDに更新しようとした場合はエラーを投げる', async () => {
@@ -210,9 +221,9 @@ describe('TransactionRepository', () => {
         categoryId: 'non-existent-category',
       };
 
-      await expect(repository.updateTransaction(createdTransaction.id, updateDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(
+        repository.updateTransaction(createdTransaction.id, updateDto)
+      ).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -220,21 +231,22 @@ describe('TransactionRepository', () => {
     let createdTransaction: Transaction;
 
     beforeEach(async () => {
-      createdTransaction = await repository.createTransaction(mockTransactionDto);
+      createdTransaction =
+        await repository.createTransaction(mockTransactionDto);
     });
 
     it('取引を正常に削除できる', async () => {
       await repository.deleteTransaction(createdTransaction.id);
 
-      await expect(repository.getTransactionById(createdTransaction.id))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(
+        repository.getTransactionById(createdTransaction.id)
+      ).rejects.toThrow(DatabaseError);
     });
 
     it('存在しない取引IDの場合はエラーを投げる', async () => {
-      await expect(repository.deleteTransaction('non-existent-id'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(
+        repository.deleteTransaction('non-existent-id')
+      ).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -242,7 +254,8 @@ describe('TransactionRepository', () => {
     let createdTransaction: Transaction;
 
     beforeEach(async () => {
-      createdTransaction = await repository.createTransaction(mockTransactionDto);
+      createdTransaction =
+        await repository.createTransaction(mockTransactionDto);
     });
 
     it('IDで取引を正常に取得できる', async () => {
@@ -254,9 +267,9 @@ describe('TransactionRepository', () => {
     });
 
     it('存在しない取引IDの場合はエラーを投げる', async () => {
-      await expect(repository.getTransactionById('non-existent-id'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(
+        repository.getTransactionById('non-existent-id')
+      ).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -266,9 +279,12 @@ describe('TransactionRepository', () => {
     let oldTransaction: Transaction;
 
     beforeEach(async () => {
-      expenseTransaction = await repository.createTransaction(mockTransactionDto);
-      incomeTransaction = await repository.createTransaction(mockIncomeTransactionDto);
-      
+      expenseTransaction =
+        await repository.createTransaction(mockTransactionDto);
+      incomeTransaction = await repository.createTransaction(
+        mockIncomeTransactionDto
+      );
+
       // 古い取引を作成
       const oldDto = {
         ...mockTransactionDto,
@@ -282,8 +298,12 @@ describe('TransactionRepository', () => {
       const result = await repository.getTransactions();
 
       expect(result).toHaveLength(3);
-      expect(result[0].date.getTime()).toBeGreaterThanOrEqual(result[1].date.getTime());
-      expect(result[1].date.getTime()).toBeGreaterThanOrEqual(result[2].date.getTime());
+      expect(result[0].date.getTime()).toBeGreaterThanOrEqual(
+        result[1].date.getTime()
+      );
+      expect(result[1].date.getTime()).toBeGreaterThanOrEqual(
+        result[2].date.getTime()
+      );
     });
 
     it('日付範囲フィルターが正常に動作する', async () => {
@@ -295,7 +315,11 @@ describe('TransactionRepository', () => {
       const result = await repository.getTransactions(filter);
 
       expect(result).toHaveLength(2);
-      expect(result.every(t => t.date >= filter.startDate! && t.date <= filter.endDate!)).toBe(true);
+      expect(
+        result.every(
+          (t) => t.date >= filter.startDate! && t.date <= filter.endDate!
+        )
+      ).toBe(true);
     });
 
     it('カテゴリフィルターが正常に動作する', async () => {
@@ -306,7 +330,7 @@ describe('TransactionRepository', () => {
       const result = await repository.getTransactions(filter);
 
       expect(result).toHaveLength(2); // expenseTransactionとoldTransaction
-      expect(result.every(t => t.categoryId === mockCategory.id)).toBe(true);
+      expect(result.every((t) => t.categoryId === mockCategory.id)).toBe(true);
     });
 
     it('取引タイプフィルターが正常に動作する', async () => {
@@ -400,9 +424,9 @@ describe('TransactionRepository', () => {
         type: 'invalid' as any,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('無効な日付の場合はエラーを投げる', async () => {
@@ -411,9 +435,9 @@ describe('TransactionRepository', () => {
         date: new Date('invalid-date'),
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
 
     it('数値以外の金額の場合はエラーを投げる', async () => {
@@ -422,9 +446,9 @@ describe('TransactionRepository', () => {
         amount: 'not-a-number' as any,
       };
 
-      await expect(repository.createTransaction(invalidDto))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createTransaction(invalidDto)).rejects.toThrow(
+        DatabaseError
+      );
     });
   });
 });

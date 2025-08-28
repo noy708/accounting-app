@@ -315,3 +315,4 @@ export const DataExport: React.FC<DataExportProps> = ({ onClose }) => {
     </Card>
   );
 };
+export default DataExport;

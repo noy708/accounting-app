@@ -6,17 +6,20 @@ import { baseApi } from './baseApi';
 export const reportApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // 月次レポート取得
-    getMonthlyReport: builder.query<MonthlyReport, { year: number; month: number }>({
+    getMonthlyReport: builder.query<
+      MonthlyReport,
+      { year: number; month: number }
+    >({
       queryFn: async ({ year, month }) => {
         try {
           const report = await reportService.getMonthlyReport(year, month);
           return { data: report };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'CUSTOM_ERROR', 
-              error: error instanceof Error ? error.message : 'Unknown error' 
-            } 
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error instanceof Error ? error.message : 'Unknown error',
+            },
           };
         }
       },
@@ -26,7 +29,10 @@ export const reportApi = baseApi.injectEndpoints({
     }),
 
     // カテゴリ別レポート取得
-    getCategoryReport: builder.query<CategorySummary[], { startDate: string; endDate: string }>({
+    getCategoryReport: builder.query<
+      CategorySummary[],
+      { startDate: string; endDate: string }
+    >({
       queryFn: async ({ startDate, endDate }) => {
         try {
           const report = await reportService.getCategoryReport(
@@ -35,11 +41,11 @@ export const reportApi = baseApi.injectEndpoints({
           );
           return { data: report };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'CUSTOM_ERROR', 
-              error: error instanceof Error ? error.message : 'Unknown error' 
-            } 
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error instanceof Error ? error.message : 'Unknown error',
+            },
           };
         }
       },
@@ -55,11 +61,11 @@ export const reportApi = baseApi.injectEndpoints({
           const report = await reportService.getYearlyReport(year);
           return { data: report };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'CUSTOM_ERROR', 
-              error: error instanceof Error ? error.message : 'Unknown error' 
-            } 
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error instanceof Error ? error.message : 'Unknown error',
+            },
           };
         }
       },
@@ -69,12 +75,15 @@ export const reportApi = baseApi.injectEndpoints({
     }),
 
     // 日別統計取得（グラフ表示用）
-    getDailyStats: builder.query<Array<{
-      date: string;
-      income: number;
-      expense: number;
-      balance: number;
-    }>, { startDate: string; endDate: string }>({
+    getDailyStats: builder.query<
+      Array<{
+        date: string;
+        income: number;
+        expense: number;
+        balance: number;
+      }>,
+      { startDate: string; endDate: string }
+    >({
       queryFn: async ({ startDate, endDate }) => {
         try {
           const stats = await reportService.getDailyStats(
@@ -83,11 +92,11 @@ export const reportApi = baseApi.injectEndpoints({
           );
           return { data: stats };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'CUSTOM_ERROR', 
-              error: error instanceof Error ? error.message : 'Unknown error' 
-            } 
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error instanceof Error ? error.message : 'Unknown error',
+            },
           };
         }
       },

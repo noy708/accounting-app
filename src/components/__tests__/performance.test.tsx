@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { PerformanceMonitor, withPerformanceMonitoring } from '../../utils/performance';
+import {
+  PerformanceMonitor,
+  withPerformanceMonitoring,
+} from '../../utils/performance';
 
 // Simple test component
 const TestComponent: React.FC<{ name: string }> = ({ name }) => (
@@ -13,9 +16,10 @@ describe('Performance Tests', () => {
   beforeEach(() => {
     performanceMonitor = PerformanceMonitor.getInstance();
     performanceMonitor.clearMetrics();
-    
+
     // Mock performance.now for consistent testing
-    jest.spyOn(performance, 'now')
+    jest
+      .spyOn(performance, 'now')
       .mockReturnValueOnce(0)
       .mockReturnValueOnce(100);
   });
@@ -41,11 +45,12 @@ describe('Performance Tests', () => {
     });
 
     it('should measure async operations correctly', async () => {
-      const mockAsyncOperation = jest.fn(() => 
-        Promise.resolve('Async Result')
-      );
+      const mockAsyncOperation = jest.fn(() => Promise.resolve('Async Result'));
 
-      const result = await performanceMonitor.measureAsync('TestOperation', mockAsyncOperation);
+      const result = await performanceMonitor.measureAsync(
+        'TestOperation',
+        mockAsyncOperation
+      );
 
       expect(mockAsyncOperation).toHaveBeenCalled();
       expect(result).toBe('Async Result');
@@ -53,7 +58,10 @@ describe('Performance Tests', () => {
     });
 
     it('should create performance-monitored HOC', () => {
-      const MonitoredComponent = withPerformanceMonitoring(TestComponent, 'Test');
+      const MonitoredComponent = withPerformanceMonitoring(
+        TestComponent,
+        'Test'
+      );
 
       render(<MonitoredComponent name="World" />);
 

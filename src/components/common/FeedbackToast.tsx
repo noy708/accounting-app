@@ -24,7 +24,10 @@ import {
 } from '@mui/icons-material';
 import { TransitionProps } from '@mui/material/transitions';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { addNotification, removeNotification } from '../../store/slices/errorSlice';
+import {
+  addNotification,
+  removeNotification,
+} from '../../store/slices/errorSlice';
 import { selectActiveOperations } from '../../store/selectors/progressSelectors';
 
 interface FeedbackToastProps {
@@ -44,17 +47,26 @@ interface FeedbackToastProps {
 }
 
 // Transition components
-const SlideTransition = (props: TransitionProps) => {
-  return <Slide {...props} direction="up" />;
-};
+const SlideTransition = React.forwardRef<
+  HTMLDivElement,
+  TransitionProps & { children: React.ReactElement }
+>((props, ref) => {
+  return <Slide {...props} direction="up" ref={ref} />;
+});
 
-const GrowTransition = (props: TransitionProps) => {
-  return <Grow {...props} />;
-};
+const GrowTransition = React.forwardRef<
+  HTMLDivElement,
+  TransitionProps & { children: React.ReactElement }
+>((props, ref) => {
+  return <Grow {...props} ref={ref} />;
+});
 
-const FadeTransition = (props: TransitionProps) => {
-  return <Fade {...props} />;
-};
+const FadeTransition = React.forwardRef<
+  HTMLDivElement,
+  TransitionProps & { children: React.ReactElement }
+>((props, ref) => {
+  return <Fade {...props} ref={ref} />;
+});
 
 export const FeedbackToast: React.FC<FeedbackToastProps> = ({
   message,
@@ -93,9 +105,16 @@ export const FeedbackToast: React.FC<FeedbackToastProps> = ({
       case 'progress':
         if (operation?.includes('upload') || operation?.includes('import')) {
           return <UploadIcon />;
-        } else if (operation?.includes('download') || operation?.includes('export')) {
+        } else if (
+          operation?.includes('download') ||
+          operation?.includes('export')
+        ) {
           return <DownloadIcon />;
-        } else if (operation?.includes('save') || operation?.includes('create') || operation?.includes('update')) {
+        } else if (
+          operation?.includes('save') ||
+          operation?.includes('create') ||
+          operation?.includes('update')
+        ) {
           return <SaveIcon />;
         } else if (operation?.includes('delete')) {
           return <DeleteIcon />;
@@ -141,9 +160,7 @@ export const FeedbackToast: React.FC<FeedbackToastProps> = ({
         }
       >
         <Box>
-          <Typography variant="body2">
-            {message}
-          </Typography>
+          <Typography variant="body2">{message}</Typography>
           {type === 'progress' && progress !== undefined && (
             <Box mt={1}>
               <LinearProgress
@@ -151,7 +168,11 @@ export const FeedbackToast: React.FC<FeedbackToastProps> = ({
                 value={progress}
                 sx={{ height: 6, borderRadius: 3 }}
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 0.5 }}
+              >
                 {Math.round(progress)}% complete
               </Typography>
             </Box>
@@ -168,48 +189,61 @@ export const useFeedback = () => {
   const activeOperations = useAppSelector(selectActiveOperations);
 
   const showSuccess = (message: string, duration?: number) => {
-    dispatch(addNotification({
-      message,
-      type: 'success',
-      duration: duration || 4000,
-    }));
+    dispatch(
+      addNotification({
+        message,
+        type: 'success',
+        duration: duration || 4000,
+      })
+    );
   };
 
   const showError = (message: string, persistent?: boolean) => {
-    dispatch(addNotification({
-      message,
-      type: 'error',
-      duration: persistent ? undefined : 6000,
-      persistent,
-    }));
+    dispatch(
+      addNotification({
+        message,
+        type: 'error',
+        duration: persistent ? undefined : 6000,
+        persistent,
+      })
+    );
   };
 
   const showWarning = (message: string, duration?: number) => {
-    dispatch(addNotification({
-      message,
-      type: 'warning',
-      duration: duration || 5000,
-    }));
+    dispatch(
+      addNotification({
+        message,
+        type: 'warning',
+        duration: duration || 5000,
+      })
+    );
   };
 
   const showInfo = (message: string, duration?: number) => {
-    dispatch(addNotification({
-      message,
-      type: 'info',
-      duration: duration || 4000,
-    }));
+    dispatch(
+      addNotification({
+        message,
+        type: 'info',
+        duration: duration || 4000,
+      })
+    );
   };
 
   const showProgress = (message: string, operation?: string) => {
-    dispatch(addNotification({
-      message,
-      type: 'info', // We'll handle progress type in the component
-      persistent: true,
-    }));
+    dispatch(
+      addNotification({
+        message,
+        type: 'info', // We'll handle progress type in the component
+        persistent: true,
+      })
+    );
   };
 
   // Auto-generate feedback for common operations
-  const showOperationSuccess = (operation: 'create' | 'update' | 'delete', entity: string) => {
+  const showOperationSuccess = (
+    operation: 'create' | 'update' | 'delete',
+    entity: string
+  ) => {
     const messages = {
       create: `${entity} created successfully`,
       update: `${entity} updated successfully`,
@@ -218,13 +252,19 @@ export const useFeedback = () => {
     showSuccess(messages[operation]);
   };
 
-  const showOperationError = (operation: 'create' | 'update' | 'delete', entity: string, error?: string) => {
+  const showOperationError = (
+    operation: 'create' | 'update' | 'delete',
+    entity: string,
+    error?: string
+  ) => {
     const messages = {
       create: `Failed to create ${entity}`,
       update: `Failed to update ${entity}`,
       delete: `Failed to delete ${entity}`,
     };
-    const message = error ? `${messages[operation]}: ${error}` : messages[operation];
+    const message = error
+      ? `${messages[operation]}: ${error}`
+      : messages[operation];
     showError(message);
   };
 
@@ -233,7 +273,10 @@ export const useFeedback = () => {
   };
 
   const showNetworkError = () => {
-    showError('Network error. Please check your connection and try again.', true);
+    showError(
+      'Network error. Please check your connection and try again.',
+      true
+    );
   };
 
   const showSaveSuccess = (entity: string) => {

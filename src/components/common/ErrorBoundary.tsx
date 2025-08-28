@@ -82,10 +82,12 @@ export class ErrorBoundary extends Component<Props, State> {
     };
 
     console.error('Error Report:', errorReport);
-    
+
     // Store in localStorage for debugging
     try {
-      const existingErrors = JSON.parse(localStorage.getItem('errorReports') || '[]');
+      const existingErrors = JSON.parse(
+        localStorage.getItem('errorReports') || '[]'
+      );
       existingErrors.push(errorReport);
       // Keep only last 10 errors
       const recentErrors = existingErrors.slice(-10);
@@ -119,11 +121,14 @@ URL: ${window.location.href}
 User Agent: ${navigator.userAgent}
     `.trim();
 
-    navigator.clipboard.writeText(errorText).then(() => {
-      alert('エラー情報をクリップボードにコピーしました');
-    }).catch(() => {
-      console.error('Failed to copy error to clipboard');
-    });
+    navigator.clipboard
+      .writeText(errorText)
+      .then(() => {
+        alert('エラー情報をクリップボードにコピーしました');
+      })
+      .catch(() => {
+        console.error('Failed to copy error to clipboard');
+      });
   };
 
   render() {
@@ -166,10 +171,7 @@ User Agent: ${navigator.userAgent}
                 >
                   再試行
                 </Button>
-                <Button
-                  variant="outlined"
-                  onClick={this.handleReload}
-                >
+                <Button variant="outlined" onClick={this.handleReload}>
                   ページを再読み込み
                 </Button>
               </Box>

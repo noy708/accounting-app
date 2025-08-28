@@ -40,11 +40,16 @@ const initialState = {
 
 describe('transactionSlice', () => {
   it('should return the initial state', () => {
-    expect(transactionReducer(undefined, { type: 'unknown' })).toEqual(initialState);
+    expect(transactionReducer(undefined, { type: 'unknown' })).toEqual(
+      initialState
+    );
   });
 
   it('should handle addTransaction', () => {
-    const actual = transactionReducer(initialState, addTransaction(mockTransaction));
+    const actual = transactionReducer(
+      initialState,
+      addTransaction(mockTransaction)
+    );
     expect(actual.transactions).toHaveLength(1);
     expect(actual.transactions[0]).toEqual(mockTransaction);
     expect(actual.pagination.total).toBe(1);
@@ -56,10 +61,16 @@ describe('transactionSlice', () => {
       ...initialState,
       transactions: [mockTransaction],
     };
-    
-    const updatedTransaction = { ...mockTransaction, description: 'Updated description' };
-    const actual = transactionReducer(stateWithTransaction, updateTransaction(updatedTransaction));
-    
+
+    const updatedTransaction = {
+      ...mockTransaction,
+      description: 'Updated description',
+    };
+    const actual = transactionReducer(
+      stateWithTransaction,
+      updateTransaction(updatedTransaction)
+    );
+
     expect(actual.transactions[0].description).toBe('Updated description');
     expect(actual.lastUpdated).toBeTruthy();
   });
@@ -70,9 +81,12 @@ describe('transactionSlice', () => {
       transactions: [mockTransaction],
       pagination: { ...initialState.pagination, total: 1 },
     };
-    
-    const actual = transactionReducer(stateWithTransaction, removeTransaction('1'));
-    
+
+    const actual = transactionReducer(
+      stateWithTransaction,
+      removeTransaction('1')
+    );
+
     expect(actual.transactions).toHaveLength(0);
     expect(actual.pagination.total).toBe(0);
     expect(actual.lastUpdated).toBeTruthy();
@@ -80,15 +94,21 @@ describe('transactionSlice', () => {
 
   it('should handle setTransactions', () => {
     const transactions = [mockTransaction, { ...mockTransaction, id: '2' }];
-    const actual = transactionReducer(initialState, setTransactions(transactions));
-    
+    const actual = transactionReducer(
+      initialState,
+      setTransactions(transactions)
+    );
+
     expect(actual.transactions).toHaveLength(2);
     expect(actual.pagination.total).toBe(2);
     expect(actual.lastUpdated).toBeTruthy();
   });
 
   it('should handle setCurrentTransaction', () => {
-    const actual = transactionReducer(initialState, setCurrentTransaction(mockTransaction));
+    const actual = transactionReducer(
+      initialState,
+      setCurrentTransaction(mockTransaction)
+    );
     expect(actual.currentTransaction).toEqual(mockTransaction);
   });
 
@@ -97,7 +117,7 @@ describe('transactionSlice', () => {
       startDate: new Date('2024-01-01'),
       categoryId: 'cat1',
     };
-    
+
     const actual = transactionReducer(initialState, setFilter(filter));
     expect(actual.filter).toEqual(filter);
     expect(actual.pagination.page).toBe(1); // Should reset page
@@ -109,21 +129,27 @@ describe('transactionSlice', () => {
       filter: { categoryId: 'cat1' },
       pagination: { ...initialState.pagination, page: 3 },
     };
-    
+
     const actual = transactionReducer(stateWithFilter, clearFilter());
     expect(actual.filter).toEqual({});
     expect(actual.pagination.page).toBe(1);
   });
 
   it('should handle setPagination', () => {
-    const actual = transactionReducer(initialState, setPagination({ page: 2, pageSize: 10 }));
+    const actual = transactionReducer(
+      initialState,
+      setPagination({ page: 2, pageSize: 10 })
+    );
     expect(actual.pagination.page).toBe(2);
     expect(actual.pagination.pageSize).toBe(10);
     expect(actual.pagination.total).toBe(0); // Should keep existing total
   });
 
   it('should handle setLoading', () => {
-    const actual = transactionReducer(initialState, setLoading({ isLoading: true, operation: 'create' }));
+    const actual = transactionReducer(
+      initialState,
+      setLoading({ isLoading: true, operation: 'create' })
+    );
     expect(actual.loading.isLoading).toBe(true);
     expect(actual.loading.operation).toBe('create');
   });
@@ -135,7 +161,7 @@ describe('transactionSlice', () => {
       currentTransaction: mockTransaction,
       filter: { categoryId: 'cat1' },
     };
-    
+
     const actual = transactionReducer(modifiedState, resetTransactionState());
     expect(actual).toEqual(initialState);
   });

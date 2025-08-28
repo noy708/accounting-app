@@ -26,7 +26,10 @@ import {
   selectEstimatedTimeRemaining,
   selectHasActiveOperations,
 } from '../../store/selectors/progressSelectors';
-import { cancelOperation, clearAllOperations } from '../../store/slices/progressSlice';
+import {
+  cancelOperation,
+  clearAllOperations,
+} from '../../store/slices/progressSlice';
 import LoadingDisplay from './LoadingDisplay';
 
 interface GlobalLoadingOverlayProps {
@@ -51,12 +54,12 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
   const overallProgress = useAppSelector(selectOverallProgress);
   const estimatedTimeRemaining = useAppSelector(selectEstimatedTimeRemaining);
   const hasActiveOperations = useAppSelector(selectHasActiveOperations);
-  
+
   const [minimized, setMinimized] = React.useState(false);
   const [showOperationDetails, setShowOperationDetails] = React.useState(false);
-  
+
   const isOpen = open !== undefined ? open : hasActiveOperations;
-  
+
   const handleCancel = (operationId?: string) => {
     if (operationId) {
       dispatch(cancelOperation(operationId));
@@ -65,7 +68,7 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
     }
     onClose?.();
   };
-  
+
   const formatTimeRemaining = (ms: number) => {
     const seconds = Math.ceil(ms / 1000);
     if (seconds < 60) return `${seconds}s`;
@@ -73,19 +76,19 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
     const remainingSeconds = seconds % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
-  
+
   const formatElapsedTime = (startTime: number) => {
     const elapsed = Date.now() - startTime;
     return formatTimeRemaining(elapsed);
   };
-  
+
   if (!isOpen) return null;
-  
+
   if (variant === 'simple') {
     return (
       <Backdrop
-        sx={{ 
-          color: '#fff', 
+        sx={{
+          color: '#fff',
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backdropFilter: 'blur(2px)',
         }}
@@ -100,21 +103,21 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
       </Backdrop>
     );
   }
-  
+
   if (variant === 'compact' || minimized) {
     return (
       <Backdrop
-        sx={{ 
-          color: '#fff', 
+        sx={{
+          color: '#fff',
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backdropFilter: 'blur(1px)',
         }}
         open={isOpen}
       >
         <Fade in={isOpen}>
-          <Card 
-            sx={{ 
-              minWidth: 300, 
+          <Card
+            sx={{
+              minWidth: 300,
               maxWidth: 400,
               position: 'fixed',
               bottom: 24,
@@ -122,9 +125,15 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
             }}
           >
             <CardContent sx={{ pb: 2 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mb={2}
+              >
                 <Typography variant="subtitle1">
-                  {activeOperations.length} operation{activeOperations.length !== 1 ? 's' : ''} running
+                  {activeOperations.length} operation
+                  {activeOperations.length !== 1 ? 's' : ''} running
                 </Typography>
                 <Box>
                   {allowMinimize && !minimized && (
@@ -133,7 +142,10 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                     </IconButton>
                   )}
                   {minimized && (
-                    <IconButton size="small" onClick={() => setMinimized(false)}>
+                    <IconButton
+                      size="small"
+                      onClick={() => setMinimized(false)}
+                    >
                       <MoreVertIcon />
                     </IconButton>
                   )}
@@ -144,12 +156,15 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                   )}
                 </Box>
               </Box>
-              
+
               <Box mb={2}>
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                  <Typography variant="body2">
-                    Overall Progress
-                  </Typography>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Typography variant="body2">Overall Progress</Typography>
                   {estimatedTimeRemaining && (
                     <Typography variant="caption" color="text.secondary">
                       ~{formatTimeRemaining(estimatedTimeRemaining)} remaining
@@ -161,29 +176,46 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                   value={overallProgress}
                   sx={{ height: 8, borderRadius: 4 }}
                 />
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 0.5 }}
+                >
                   {Math.round(overallProgress)}% complete
                 </Typography>
               </Box>
-              
-              {!minimized && activeOperations.slice(0, 3).map((operation) => (
-                <Box key={operation.id} mb={1}>
-                  <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Typography variant="body2" noWrap sx={{ flex: 1, mr: 1 }}>
-                      {operation.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatElapsedTime(operation.startTime)}
-                    </Typography>
+
+              {!minimized &&
+                activeOperations.slice(0, 3).map((operation) => (
+                  <Box key={operation.id} mb={1}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{ flex: 1, mr: 1 }}
+                      >
+                        {operation.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatElapsedTime(operation.startTime)}
+                      </Typography>
+                    </Box>
+                    {operation.message && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                      >
+                        {operation.message}
+                      </Typography>
+                    )}
                   </Box>
-                  {operation.message && (
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      {operation.message}
-                    </Typography>
-                  )}
-                </Box>
-              ))}
-              
+                ))}
+
               {activeOperations.length > 3 && !minimized && (
                 <Typography variant="caption" color="text.secondary">
                   +{activeOperations.length - 3} more operations
@@ -195,24 +227,34 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
       </Backdrop>
     );
   }
-  
+
   // Detailed variant
   return (
     <Backdrop
-      sx={{ 
-        color: '#fff', 
+      sx={{
+        color: '#fff',
         zIndex: (theme) => theme.zIndex.drawer + 1,
         backdropFilter: 'blur(3px)',
       }}
       open={isOpen}
     >
       <Fade in={isOpen}>
-        <Card sx={{ minWidth: 400, maxWidth: 600, maxHeight: '80vh', overflow: 'auto' }}>
+        <Card
+          sx={{
+            minWidth: 400,
+            maxWidth: 600,
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}
+        >
           <CardContent>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-              <Typography variant="h6">
-                Operations in Progress
-              </Typography>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mb={3}
+            >
+              <Typography variant="h6">Operations in Progress</Typography>
               <Box>
                 {allowMinimize && (
                   <IconButton onClick={() => setMinimized(true)}>
@@ -226,9 +268,14 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                 )}
               </Box>
             </Box>
-            
+
             <Box mb={3}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mb={2}
+              >
                 <Typography variant="subtitle1">
                   Overall Progress ({activeOperations.length} operations)
                 </Typography>
@@ -249,21 +296,26 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                 {Math.round(overallProgress)}% complete
               </Typography>
             </Box>
-            
+
             {showDetails && (
               <Box>
-                <Box display="flex" alignItems="center" justifyContent="between" mb={2}>
-                  <Typography variant="subtitle2">
-                    Active Operations
-                  </Typography>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="between"
+                  mb={2}
+                >
+                  <Typography variant="subtitle2">Active Operations</Typography>
                   <IconButton
                     size="small"
-                    onClick={() => setShowOperationDetails(!showOperationDetails)}
+                    onClick={() =>
+                      setShowOperationDetails(!showOperationDetails)
+                    }
                   >
                     <MoreVertIcon />
                   </IconButton>
                 </Box>
-                
+
                 <List dense>
                   {activeOperations.map((operation) => (
                     <ListItem key={operation.id}>
@@ -279,13 +331,22 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
                         secondary={
                           <Box>
                             {operation.message && (
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 {operation.message}
                               </Typography>
                             )}
-                            <Box display="flex" alignItems="center" gap={2} mt={0.5}>
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              gap={2}
+                              mt={0.5}
+                            >
                               <Typography variant="caption">
-                                Running for {formatElapsedTime(operation.startTime)}
+                                Running for{' '}
+                                {formatElapsedTime(operation.startTime)}
                               </Typography>
                               {!operation.indeterminate && (
                                 <Typography variant="caption">

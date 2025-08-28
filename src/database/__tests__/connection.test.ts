@@ -33,31 +33,35 @@ describe('DatabaseConnection', () => {
 
     it('should create default categories on initialization', async () => {
       await dbConnection.initialize();
-      
+
       const allCategories = await db.categories.toArray();
-      const categories = allCategories.filter(cat => cat.isDefault);
+      const categories = allCategories.filter((cat) => cat.isDefault);
       expect(categories.length).toBeGreaterThan(0);
-      
+
       // 支出カテゴリの確認
-      const expenseCategories = categories.filter(cat => cat.type === 'expense');
+      const expenseCategories = categories.filter(
+        (cat) => cat.type === 'expense'
+      );
       expect(expenseCategories.length).toBeGreaterThan(0);
-      expect(expenseCategories.some(cat => cat.name === '食費')).toBe(true);
-      
+      expect(expenseCategories.some((cat) => cat.name === '食費')).toBe(true);
+
       // 収入カテゴリの確認
-      const incomeCategories = categories.filter(cat => cat.type === 'income');
+      const incomeCategories = categories.filter(
+        (cat) => cat.type === 'income'
+      );
       expect(incomeCategories.length).toBeGreaterThan(0);
-      expect(incomeCategories.some(cat => cat.name === '給与')).toBe(true);
+      expect(incomeCategories.some((cat) => cat.name === '給与')).toBe(true);
     });
 
     it('should not create duplicate default categories', async () => {
       await dbConnection.initialize();
       const allCategories1 = await db.categories.toArray();
-      const firstCount = allCategories1.filter(cat => cat.isDefault).length;
-      
+      const firstCount = allCategories1.filter((cat) => cat.isDefault).length;
+
       await dbConnection.initialize(); // 2回目の初期化
       const allCategories2 = await db.categories.toArray();
-      const secondCount = allCategories2.filter(cat => cat.isDefault).length;
-      
+      const secondCount = allCategories2.filter((cat) => cat.isDefault).length;
+
       expect(firstCount).toBe(secondCount);
     });
   });
@@ -74,7 +78,7 @@ describe('DatabaseConnection', () => {
     it('should return healthy status after initialization', async () => {
       await dbConnection.initialize();
       const health = await dbConnection.healthCheck();
-      
+
       expect(health.isHealthy).toBe(true);
       expect(health.issues).toHaveLength(0);
     });
@@ -82,7 +86,7 @@ describe('DatabaseConnection', () => {
     it('should detect missing default categories', async () => {
       await db.open();
       const health = await dbConnection.healthCheck();
-      
+
       expect(health.isHealthy).toBe(false);
       expect(health.issues).toContain('デフォルトカテゴリが見つかりません');
     });
@@ -92,7 +96,7 @@ describe('DatabaseConnection', () => {
     it('should reset database successfully', async () => {
       await dbConnection.initialize();
       await dbConnection.reset();
-      
+
       // データベースが削除されていることを確認
       await db.open();
       const categories = await db.categories.toArray();
@@ -104,7 +108,7 @@ describe('DatabaseConnection', () => {
 describe('DatabaseError', () => {
   it('should create error with correct properties', () => {
     const error = new DatabaseError('Test error', 'database', true);
-    
+
     expect(error.message).toBe('Test error');
     expect(error.type).toBe('database');
     expect(error.retryable).toBe(true);
@@ -113,7 +117,7 @@ describe('DatabaseError', () => {
 
   it('should use default values', () => {
     const error = new DatabaseError('Test error');
-    
+
     expect(error.type).toBe('database');
     expect(error.retryable).toBe(false);
   });

@@ -32,7 +32,10 @@ import {
   selectEstimatedTimeRemaining,
   selectHasActiveOperations,
 } from '../../store/selectors/progressSelectors';
-import { cancelOperation, clearCompletedOperations } from '../../store/slices/progressSlice';
+import {
+  cancelOperation,
+  clearCompletedOperations,
+} from '../../store/slices/progressSlice';
 
 interface ProgressDisplayProps {
   variant?: 'compact' | 'detailed' | 'minimal';
@@ -56,14 +59,14 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
   const overallProgress = useAppSelector(selectOverallProgress);
   const estimatedTimeRemaining = useAppSelector(selectEstimatedTimeRemaining);
   const hasActiveOperations = useAppSelector(selectHasActiveOperations);
-  
+
   const [expanded, setExpanded] = React.useState(false);
-  
+
   const handleCancel = (id: string) => {
     dispatch(cancelOperation(id));
     onOperationCancel?.(id);
   };
-  
+
   const formatTimeRemaining = (ms: number) => {
     const seconds = Math.ceil(ms / 1000);
     if (seconds < 60) return `${seconds}s`;
@@ -71,52 +74,66 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
     const remainingSeconds = seconds % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
-  
+
   const formatElapsedTime = (startTime: number) => {
     const elapsed = Date.now() - startTime;
     return formatTimeRemaining(elapsed);
   };
-  
-  if (!hasActiveOperations && completedOperations.length === 0 && failedOperations.length === 0) {
+
+  if (
+    !hasActiveOperations &&
+    completedOperations.length === 0 &&
+    failedOperations.length === 0
+  ) {
     return null;
   }
-  
+
   if (variant === 'minimal') {
     return hasActiveOperations ? (
       <Box display="flex" alignItems="center" gap={1}>
         <CircularProgress size={16} />
         <Typography variant="caption" color="text.secondary">
-          {activeOperations.length} operation{activeOperations.length !== 1 ? 's' : ''} in progress
+          {activeOperations.length} operation
+          {activeOperations.length !== 1 ? 's' : ''} in progress
         </Typography>
       </Box>
     ) : null;
   }
-  
+
   if (variant === 'compact') {
     return (
       <Card sx={{ mb: 2 }}>
         <CardContent sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            mb={1}
+          >
             <Typography variant="subtitle2">
               Operations ({activeOperations.length} active)
             </Typography>
-            {(completedOperations.length > 0 || failedOperations.length > 0) && (
+            {(completedOperations.length > 0 ||
+              failedOperations.length > 0) && (
               <IconButton
                 size="small"
                 onClick={() => setExpanded(!expanded)}
-                aria-label={expanded ? "collapse" : "expand"}
+                aria-label={expanded ? 'collapse' : 'expand'}
               >
                 {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </IconButton>
             )}
           </Box>
-          
+
           {hasActiveOperations && (
             <Box mb={2}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                <Typography variant="body2">
-                  Overall Progress
-                </Typography>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                mb={1}
+              >
+                <Typography variant="body2">Overall Progress</Typography>
                 {estimatedTimeRemaining && (
                   <Typography variant="caption" color="text.secondary">
                     ~{formatTimeRemaining(estimatedTimeRemaining)} remaining
@@ -130,10 +147,14 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
               />
             </Box>
           )}
-          
+
           {activeOperations.slice(0, maxItems).map((operation) => (
             <Box key={operation.id} mb={1}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
                 <Typography variant="body2" noWrap sx={{ flex: 1, mr: 1 }}>
                   {operation.name}
                 </Typography>
@@ -150,7 +171,11 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                 </Box>
               </Box>
               {operation.message && (
-                <Typography variant="caption" color="text.secondary" display="block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                >
                   {operation.message}
                 </Typography>
               )}
@@ -158,23 +183,32 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                 <LinearProgress
                   variant="determinate"
                   value={operation.progress}
-                  size="small"
                   sx={{ mt: 0.5, height: 4 }}
                 />
               )}
             </Box>
           ))}
-          
+
           <Collapse in={expanded}>
             <Divider sx={{ my: 1 }} />
-            
+
             {showCompleted && completedOperations.length > 0 && (
               <Box mb={2}>
-                <Typography variant="subtitle2" color="success.main" gutterBottom>
+                <Typography
+                  variant="subtitle2"
+                  color="success.main"
+                  gutterBottom
+                >
                   Completed ({completedOperations.length})
                 </Typography>
                 {completedOperations.slice(0, maxItems).map((operation) => (
-                  <Box key={operation.id} display="flex" alignItems="center" gap={1} mb={0.5}>
+                  <Box
+                    key={operation.id}
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    mb={0.5}
+                  >
                     <CheckCircleIcon color="success" fontSize="small" />
                     <Typography variant="body2" sx={{ flex: 1 }}>
                       {operation.name}
@@ -186,7 +220,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                 ))}
               </Box>
             )}
-            
+
             {showFailed && failedOperations.length > 0 && (
               <Box mb={2}>
                 <Typography variant="subtitle2" color="error.main" gutterBottom>
@@ -204,7 +238,12 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                       </Typography>
                     </Box>
                     {operation.message && (
-                      <Typography variant="caption" color="error.main" display="block" ml={3}>
+                      <Typography
+                        variant="caption"
+                        color="error.main"
+                        display="block"
+                        ml={3}
+                      >
                         {operation.message}
                       </Typography>
                     )}
@@ -212,8 +251,9 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                 ))}
               </Box>
             )}
-            
-            {(completedOperations.length > 0 || failedOperations.length > 0) && (
+
+            {(completedOperations.length > 0 ||
+              failedOperations.length > 0) && (
               <Box textAlign="right">
                 <Chip
                   label="Clear History"
@@ -228,7 +268,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
       </Card>
     );
   }
-  
+
   // Detailed variant
   return (
     <Card>
@@ -236,7 +276,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
         <Typography variant="h6" gutterBottom>
           Operation Progress
         </Typography>
-        
+
         {hasActiveOperations && (
           <Box mb={3}>
             <Typography variant="subtitle1" gutterBottom>
@@ -265,7 +305,11 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                           alignItems="center"
                           justifyContent="center"
                         >
-                          <Typography variant="caption" component="div" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            component="div"
+                            color="text.secondary"
+                          >
                             {Math.round(operation.progress)}%
                           </Typography>
                         </Box>
@@ -281,16 +325,28 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                             {operation.message}
                           </Typography>
                         )}
-                        <Box display="flex" alignItems="center" gap={1} mt={0.5}>
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                          mt={0.5}
+                        >
                           <ScheduleIcon fontSize="small" />
                           <Typography variant="caption">
                             {formatElapsedTime(operation.startTime)}
                           </Typography>
-                          {operation.estimatedDuration && !operation.indeterminate && (
-                            <Typography variant="caption" color="text.secondary">
-                              / ~{formatTimeRemaining(operation.estimatedDuration)}
-                            </Typography>
-                          )}
+                          {operation.estimatedDuration &&
+                            !operation.indeterminate && (
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                / ~
+                                {formatTimeRemaining(
+                                  operation.estimatedDuration
+                                )}
+                              </Typography>
+                            )}
                         </Box>
                         {!operation.indeterminate && (
                           <LinearProgress
@@ -313,7 +369,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
             </List>
           </Box>
         )}
-        
+
         {showCompleted && completedOperations.length > 0 && (
           <Box mb={3}>
             <Typography variant="subtitle1" color="success.main" gutterBottom>
@@ -334,7 +390,7 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
             </List>
           </Box>
         )}
-        
+
         {showFailed && failedOperations.length > 0 && (
           <Box mb={3}>
             <Typography variant="subtitle1" color="error.main" gutterBottom>

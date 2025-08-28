@@ -66,7 +66,7 @@ export class DataBackupService {
     options: BackupOptions = {
       includeTransactions: true,
       includeCategories: true,
-      compress: false
+      compress: false,
     },
     onProgress?: (progress: BackupProgress) => void
   ): Promise<BackupData> {
@@ -75,7 +75,7 @@ export class DataBackupService {
         current: 0,
         total: 100,
         stage: 'preparing',
-        message: 'バックアップを準備中...'
+        message: 'バックアップを準備中...',
       });
 
       const backupData = await this.generateBackupData(options, onProgress);
@@ -84,7 +84,7 @@ export class DataBackupService {
         current: 100,
         total: 100,
         stage: 'complete',
-        message: 'バックアップ完了'
+        message: 'バックアップ完了',
       });
 
       return backupData;
@@ -105,20 +105,23 @@ export class DataBackupService {
       this.stopAutoBackup();
     }
 
-    this.autoBackupInterval = window.setInterval(async () => {
-      try {
-        const backupData = await this.createManualBackup({
-          includeTransactions: true,
-          includeCategories: true,
-          compress: true
-        });
+    this.autoBackupInterval = window.setInterval(
+      async () => {
+        try {
+          const backupData = await this.createManualBackup({
+            includeTransactions: true,
+            includeCategories: true,
+            compress: true,
+          });
 
-        // 自動バックアップをローカルストレージに保存
-        this.saveAutoBackupToStorage(backupData);
-      } catch (error) {
-        console.error('Auto backup failed:', error);
-      }
-    }, intervalMinutes * 60 * 1000);
+          // 自動バックアップをローカルストレージに保存
+          this.saveAutoBackupToStorage(backupData);
+        } catch (error) {
+          console.error('Auto backup failed:', error);
+        }
+      },
+      intervalMinutes * 60 * 1000
+    );
 
     console.log(`Auto backup started with ${intervalMinutes} minute interval`);
   }
@@ -142,14 +145,14 @@ export class DataBackupService {
     options: RestoreOptions = {
       skipDuplicates: true,
       validateIntegrity: true,
-      createMissingCategories: false
+      createMissingCategories: false,
     }
   ): Promise<RestoreResult> {
     const result: RestoreResult = {
       success: false,
       transactions: { imported: 0, skipped: 0, errors: 0 },
       categories: { imported: 0, skipped: 0, errors: 0 },
-      errors: []
+      errors: [],
     };
 
     try {
@@ -200,7 +203,9 @@ export class DataBackupService {
     let transactions: Transaction[] = [];
     let categories: Category[] = [];
     let currentStep = 0;
-    const totalSteps = (options.includeTransactions ? 1 : 0) + (options.includeCategories ? 1 : 0);
+    const totalSteps =
+      (options.includeTransactions ? 1 : 0) +
+      (options.includeCategories ? 1 : 0);
 
     // カテゴリの取得
     if (options.includeCategories) {
@@ -208,7 +213,7 @@ export class DataBackupService {
         current: Math.round((currentStep / totalSteps) * 80),
         total: 100,
         stage: 'backing_up',
-        message: 'カテゴリをバックアップ中...'
+        message: 'カテゴリをバックアップ中...',
       });
 
       categories = await this.categoryRepo.getCategories();
@@ -221,7 +226,7 @@ export class DataBackupService {
         current: Math.round((currentStep / totalSteps) * 80),
         total: 100,
         stage: 'backing_up',
-        message: '取引をバックアップ中...'
+        message: '取引をバックアップ中...',
       });
 
       transactions = await this.transactionRepo.getTransactions();
@@ -233,7 +238,7 @@ export class DataBackupService {
       current: 90,
       total: 100,
       stage: 'backing_up',
-      message: 'データ整合性チェックサムを計算中...'
+      message: 'データ整合性チェックサムを計算中...',
     });
 
     const checksum = await this.calculateChecksum(transactions, categories);
@@ -244,10 +249,10 @@ export class DataBackupService {
       metadata: {
         transactionCount: transactions.length,
         categoryCount: categories.length,
-        checksum
+        checksum,
       },
       transactions,
-      categories
+      categories,
     };
 
     return backupData;
@@ -263,7 +268,7 @@ export class DataBackupService {
     const result = { imported: 0, skipped: 0, errors: 0 };
     const existingCategories = await this.categoryRepo.getCategories();
     const existingCategoryNames = new Set(
-      existingCategories.map(c => c.name.toLowerCase())
+      existingCategories.map((c) => c.name.toLowerCase())
     );
 
     for (const category of categories) {
@@ -280,7 +285,7 @@ export class DataBackupService {
         await this.categoryRepo.createCategory({
           name: category.name,
           color: category.color,
-          type: category.type
+          type: category.type,
         });
 
         existingCategoryNames.add(category.name.toLowerCase());
@@ -304,15 +309,16 @@ export class DataBackupService {
     const result = { imported: 0, skipped: 0, errors: 0 };
     const existingTransactions = await this.transactionRepo.getTransactions();
     const existingCategories = await this.categoryRepo.getCategories();
-    const categoryMap = new Map(existingCategories.map(c => [c.name, c.id]));
+    const categoryMap = new Map(existingCategories.map((c) => [c.name, c.id]));
 
     for (const transaction of transactions) {
       try {
         // 重複チェック（日付、金額、説明が同じ）
-        const isDuplicate = existingTransactions.some(t =>
-          t.date.toDateString() === transaction.date.toDateString() &&
-          t.amount === transaction.amount &&
-          t.description === transaction.description
+        const isDuplicate = existingTransactions.some(
+          (t) =>
+            t.date.toDateString() === transaction.date.toDateString() &&
+            t.amount === transaction.amount &&
+            t.description === transaction.description
         );
 
         if (isDuplicate && options.skipDuplicates) {
@@ -322,18 +328,22 @@ export class DataBackupService {
 
         // カテゴリIDの解決
         let categoryId = transaction.categoryId;
-        
+
         // カテゴリが存在しない場合の処理
-        const categoryExists = existingCategories.some(c => c.id === categoryId);
+        const categoryExists = existingCategories.some(
+          (c) => c.id === categoryId
+        );
         if (!categoryExists) {
           if (options.createMissingCategories) {
             // カテゴリ名からIDを検索（バックアップ時のカテゴリ名を使用）
-            const backupCategory = transactions.find(t => t.categoryId === categoryId);
+            const backupCategory = transactions.find(
+              (t) => t.categoryId === categoryId
+            );
             if (backupCategory) {
-              const foundCategoryId = Array.from(categoryMap.entries())
-                .find(([name]) => name.toLowerCase().includes('その他'))
-                ?.[1];
-              
+              const foundCategoryId = Array.from(categoryMap.entries()).find(
+                ([name]) => name.toLowerCase().includes('その他')
+              )?.[1];
+
               if (foundCategoryId) {
                 categoryId = foundCategoryId;
               } else {
@@ -353,12 +363,16 @@ export class DataBackupService {
           amount: Math.abs(transaction.amount), // 正の値で渡す
           description: transaction.description,
           categoryId,
-          type: transaction.type
+          type: transaction.type,
         });
 
         result.imported++;
       } catch (error) {
-        console.error('Failed to restore transaction:', transaction.description, error);
+        console.error(
+          'Failed to restore transaction:',
+          transaction.description,
+          error
+        );
         result.errors++;
       }
     }
@@ -386,11 +400,16 @@ export class DataBackupService {
         errors.push('バックアップファイルにメタデータがありません');
       } else {
         // データ数の整合性チェック
-        if (backupData.metadata.transactionCount !== backupData.transactions.length) {
+        if (
+          backupData.metadata.transactionCount !==
+          backupData.transactions.length
+        ) {
           errors.push('取引データ数がメタデータと一致しません');
         }
 
-        if (backupData.metadata.categoryCount !== backupData.categories.length) {
+        if (
+          backupData.metadata.categoryCount !== backupData.categories.length
+        ) {
           errors.push('カテゴリデータ数がメタデータと一致しません');
         }
 
@@ -401,7 +420,9 @@ export class DataBackupService {
         );
 
         if (calculatedChecksum !== backupData.metadata.checksum) {
-          errors.push('データの整合性チェックに失敗しました（チェックサムが一致しません）');
+          errors.push(
+            'データの整合性チェックに失敗しました（チェックサムが一致しません）'
+          );
         }
       }
 
@@ -416,12 +437,14 @@ export class DataBackupService {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       };
     } catch (error) {
       return {
         isValid: false,
-        errors: [`整合性チェック中にエラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`]
+        errors: [
+          `整合性チェック中にエラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
       };
     }
   }
@@ -435,26 +458,26 @@ export class DataBackupService {
   ): Promise<string> {
     // 簡単なチェックサム計算（実際のプロダクションではより堅牢な方法を使用）
     const data = JSON.stringify({
-      transactions: transactions.map(t => ({
+      transactions: transactions.map((t) => ({
         date: t.date.toISOString(),
         amount: t.amount,
         description: t.description,
         categoryId: t.categoryId,
-        type: t.type
+        type: t.type,
       })),
-      categories: categories.map(c => ({
+      categories: categories.map((c) => ({
         name: c.name,
         color: c.color,
         type: c.type,
-        isDefault: c.isDefault
-      }))
+        isDefault: c.isDefault,
+      })),
     });
 
     // Simple hash function for checksum
     let hash = 0;
     for (let i = 0; i < data.length; i++) {
       const char = data.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
 
@@ -468,7 +491,7 @@ export class DataBackupService {
     try {
       const backupKey = `auto_backup_${Date.now()}`;
       const compressedData = JSON.stringify(backupData);
-      
+
       localStorage.setItem(backupKey, compressedData);
 
       // 古い自動バックアップを削除（最新5個まで保持）
@@ -484,12 +507,12 @@ export class DataBackupService {
   private cleanupOldAutoBackups(): void {
     try {
       const backupKeys = Object.keys(localStorage)
-        .filter(key => key.startsWith('auto_backup_'))
+        .filter((key) => key.startsWith('auto_backup_'))
         .sort()
         .reverse();
 
       // 最新5個を除いて削除
-      backupKeys.slice(5).forEach(key => {
+      backupKeys.slice(5).forEach((key) => {
         localStorage.removeItem(key);
       });
     } catch (error) {
@@ -514,11 +537,11 @@ export class DataBackupService {
       link.href = url;
       link.download = finalFilename;
       link.style.visibility = 'hidden';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       URL.revokeObjectURL(url);
     } catch (error) {
       throw new DatabaseError(
@@ -533,31 +556,33 @@ export class DataBackupService {
   getAutoBackups(): BackupData[] {
     try {
       const backupKeys = Object.keys(localStorage)
-        .filter(key => key.startsWith('auto_backup_'))
+        .filter((key) => key.startsWith('auto_backup_'))
         .sort()
         .reverse();
 
-      return backupKeys.map(key => {
-        const data = localStorage.getItem(key);
-        if (data) {
-          const backupData = JSON.parse(data);
-          // 日付文字列をDateオブジェクトに変換
-          backupData.timestamp = new Date(backupData.timestamp);
-          backupData.transactions = backupData.transactions.map((t: any) => ({
-            ...t,
-            date: new Date(t.date),
-            createdAt: new Date(t.createdAt),
-            updatedAt: new Date(t.updatedAt)
-          }));
-          backupData.categories = backupData.categories.map((c: any) => ({
-            ...c,
-            createdAt: new Date(c.createdAt),
-            updatedAt: new Date(c.updatedAt)
-          }));
-          return backupData;
-        }
-        return null;
-      }).filter(Boolean) as BackupData[];
+      return backupKeys
+        .map((key) => {
+          const data = localStorage.getItem(key);
+          if (data) {
+            const backupData = JSON.parse(data);
+            // 日付文字列をDateオブジェクトに変換
+            backupData.timestamp = new Date(backupData.timestamp);
+            backupData.transactions = backupData.transactions.map((t: any) => ({
+              ...t,
+              date: new Date(t.date),
+              createdAt: new Date(t.createdAt),
+              updatedAt: new Date(t.updatedAt),
+            }));
+            backupData.categories = backupData.categories.map((c: any) => ({
+              ...c,
+              createdAt: new Date(c.createdAt),
+              updatedAt: new Date(c.updatedAt),
+            }));
+            return backupData;
+          }
+          return null;
+        })
+        .filter(Boolean) as BackupData[];
     } catch (error) {
       console.error('Failed to get auto backups:', error);
       return [];

@@ -54,7 +54,7 @@ describe('errorSlice', () => {
       type: 'system',
       retryable: true,
     };
-    
+
     const actual = errorReducer(initialState, addError(systemError));
     expect(actual.errors).toHaveLength(1);
     expect(actual.lastError).toEqual(systemError);
@@ -65,7 +65,7 @@ describe('errorSlice', () => {
     // First add an error to get the ID
     const stateWithError = errorReducer(initialState, addError(mockError));
     const errorId = (stateWithError.errors[0] as any).id;
-    
+
     const actual = errorReducer(stateWithError, removeError(errorId));
     expect(actual.errors).toHaveLength(0);
   });
@@ -73,7 +73,7 @@ describe('errorSlice', () => {
   it('should handle clearErrors', () => {
     const stateWithErrors = errorReducer(initialState, addError(mockError));
     const actual = errorReducer(stateWithErrors, clearErrors());
-    
+
     expect(actual.errors).toHaveLength(0);
     expect(actual.globalError).toBeNull();
     expect(actual.lastError).toBeNull();
@@ -81,20 +81,26 @@ describe('errorSlice', () => {
 
   it('should handle clearErrorsByType', () => {
     const state1 = errorReducer(initialState, addError(mockError));
-    const state2 = errorReducer(state1, addError({ ...mockError, type: 'database' }));
-    
+    const state2 = errorReducer(
+      state1,
+      addError({ ...mockError, type: 'database' })
+    );
+
     const actual = errorReducer(state2, clearErrorsByType('validation'));
-    
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).type).toBe('database');
   });
 
   it('should handle clearErrorsByField', () => {
     const state1 = errorReducer(initialState, addError(mockError));
-    const state2 = errorReducer(state1, addError({ ...mockError, field: 'description' }));
-    
+    const state2 = errorReducer(
+      state1,
+      addError({ ...mockError, field: 'description' })
+    );
+
     const actual = errorReducer(state2, clearErrorsByField('amount'));
-    
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).field).toBe('description');
   });
@@ -106,18 +112,24 @@ describe('errorSlice', () => {
   });
 
   it('should handle clearGlobalError', () => {
-    const stateWithGlobalError = errorReducer(initialState, setGlobalError(mockError));
+    const stateWithGlobalError = errorReducer(
+      initialState,
+      setGlobalError(mockError)
+    );
     const actual = errorReducer(stateWithGlobalError, clearGlobalError());
-    
+
     expect(actual.globalError).toBeNull();
   });
 
   it('should handle addValidationError', () => {
-    const actual = errorReducer(initialState, addValidationError({
-      field: 'amount',
-      message: 'Amount is required',
-    }));
-    
+    const actual = errorReducer(
+      initialState,
+      addValidationError({
+        field: 'amount',
+        message: 'Amount is required',
+      })
+    );
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).type).toBe('validation');
     expect((actual.errors[0] as any).field).toBe('amount');
@@ -126,26 +138,35 @@ describe('errorSlice', () => {
   });
 
   it('should replace existing validation error for same field', () => {
-    const state1 = errorReducer(initialState, addValidationError({
-      field: 'amount',
-      message: 'First error',
-    }));
-    
-    const actual = errorReducer(state1, addValidationError({
-      field: 'amount',
-      message: 'Second error',
-    }));
-    
+    const state1 = errorReducer(
+      initialState,
+      addValidationError({
+        field: 'amount',
+        message: 'First error',
+      })
+    );
+
+    const actual = errorReducer(
+      state1,
+      addValidationError({
+        field: 'amount',
+        message: 'Second error',
+      })
+    );
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).message).toBe('Second error');
   });
 
   it('should handle addDatabaseError', () => {
-    const actual = errorReducer(initialState, addDatabaseError({
-      message: 'Database connection failed',
-      retryable: true,
-    }));
-    
+    const actual = errorReducer(
+      initialState,
+      addDatabaseError({
+        message: 'Database connection failed',
+        retryable: true,
+      })
+    );
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).type).toBe('database');
     expect((actual.errors[0] as any).retryable).toBe(true);
@@ -153,20 +174,26 @@ describe('errorSlice', () => {
   });
 
   it('should handle addBusinessError', () => {
-    const actual = errorReducer(initialState, addBusinessError({
-      message: 'Cannot delete category with transactions',
-    }));
-    
+    const actual = errorReducer(
+      initialState,
+      addBusinessError({
+        message: 'Cannot delete category with transactions',
+      })
+    );
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).type).toBe('business');
     expect((actual.errors[0] as any).retryable).toBe(false);
   });
 
   it('should handle addSystemError', () => {
-    const actual = errorReducer(initialState, addSystemError({
-      message: 'Unexpected error occurred',
-    }));
-    
+    const actual = errorReducer(
+      initialState,
+      addSystemError({
+        message: 'Unexpected error occurred',
+      })
+    );
+
     expect(actual.errors).toHaveLength(1);
     expect((actual.errors[0] as any).type).toBe('system');
     expect((actual.errors[0] as any).retryable).toBe(true);
@@ -175,28 +202,34 @@ describe('errorSlice', () => {
 
   it('should limit errors to 10 items', () => {
     let state = initialState;
-    
+
     // Add 12 errors
     for (let i = 0; i < 12; i++) {
-      state = errorReducer(state, addError({
-        ...mockError,
-        message: `Error ${i}`,
-      }));
+      state = errorReducer(
+        state,
+        addError({
+          ...mockError,
+          message: `Error ${i}`,
+        })
+      );
     }
-    
+
     expect(state.errors).toHaveLength(10);
   });
 
   describe('retry functionality', () => {
     const mockOriginalAction = { type: 'test/action', payload: { id: '1' } };
-    
+
     it('should handle addRetryableError', () => {
-      const actual = errorReducer(initialState, addRetryableError({
-        originalAction: mockOriginalAction,
-        error: mockError,
-        maxRetries: 3,
-      }));
-      
+      const actual = errorReducer(
+        initialState,
+        addRetryableError({
+          originalAction: mockOriginalAction,
+          error: mockError,
+          maxRetries: 3,
+        })
+      );
+
       expect(actual.retryQueue).toHaveLength(1);
       expect(actual.retryQueue[0].originalAction).toEqual(mockOriginalAction);
       expect(actual.retryQueue[0].error).toEqual(mockError);
@@ -205,40 +238,55 @@ describe('errorSlice', () => {
     });
 
     it('should handle incrementRetryCount', () => {
-      const stateWithRetry = errorReducer(initialState, addRetryableError({
-        originalAction: mockOriginalAction,
-        error: mockError,
-      }));
-      
+      const stateWithRetry = errorReducer(
+        initialState,
+        addRetryableError({
+          originalAction: mockOriginalAction,
+          error: mockError,
+        })
+      );
+
       const retryId = stateWithRetry.retryQueue[0].id;
       const actual = errorReducer(stateWithRetry, incrementRetryCount(retryId));
-      
+
       expect(actual.retryQueue[0].retryCount).toBe(1);
       expect(actual.retryQueue[0].nextRetryAt).toBeGreaterThan(Date.now());
     });
 
     it('should handle removeFromRetryQueue', () => {
-      const stateWithRetry = errorReducer(initialState, addRetryableError({
-        originalAction: mockOriginalAction,
-        error: mockError,
-      }));
-      
+      const stateWithRetry = errorReducer(
+        initialState,
+        addRetryableError({
+          originalAction: mockOriginalAction,
+          error: mockError,
+        })
+      );
+
       const retryId = stateWithRetry.retryQueue[0].id;
-      const actual = errorReducer(stateWithRetry, removeFromRetryQueue(retryId));
-      
+      const actual = errorReducer(
+        stateWithRetry,
+        removeFromRetryQueue(retryId)
+      );
+
       expect(actual.retryQueue).toHaveLength(0);
     });
 
     it('should handle clearRetryQueue', () => {
-      const state1 = errorReducer(initialState, addRetryableError({
-        originalAction: mockOriginalAction,
-        error: mockError,
-      }));
-      const state2 = errorReducer(state1, addRetryableError({
-        originalAction: mockOriginalAction,
-        error: { ...mockError, message: 'Another error' },
-      }));
-      
+      const state1 = errorReducer(
+        initialState,
+        addRetryableError({
+          originalAction: mockOriginalAction,
+          error: mockError,
+        })
+      );
+      const state2 = errorReducer(
+        state1,
+        addRetryableError({
+          originalAction: mockOriginalAction,
+          error: { ...mockError, message: 'Another error' },
+        })
+      );
+
       const actual = errorReducer(state2, clearRetryQueue());
       expect(actual.retryQueue).toHaveLength(0);
     });
@@ -246,12 +294,15 @@ describe('errorSlice', () => {
 
   describe('notification functionality', () => {
     it('should handle addNotification', () => {
-      const actual = errorReducer(initialState, addNotification({
-        message: 'Success message',
-        type: 'success',
-        duration: 5000,
-      }));
-      
+      const actual = errorReducer(
+        initialState,
+        addNotification({
+          message: 'Success message',
+          type: 'success',
+          duration: 5000,
+        })
+      );
+
       expect(actual.notifications).toHaveLength(1);
       expect(actual.notifications[0].message).toBe('Success message');
       expect(actual.notifications[0].type).toBe('success');
@@ -259,42 +310,57 @@ describe('errorSlice', () => {
     });
 
     it('should handle removeNotification', () => {
-      const stateWithNotification = errorReducer(initialState, addNotification({
-        message: 'Test notification',
-        type: 'info',
-      }));
-      
+      const stateWithNotification = errorReducer(
+        initialState,
+        addNotification({
+          message: 'Test notification',
+          type: 'info',
+        })
+      );
+
       const notificationId = stateWithNotification.notifications[0].id;
-      const actual = errorReducer(stateWithNotification, removeNotification(notificationId));
-      
+      const actual = errorReducer(
+        stateWithNotification,
+        removeNotification(notificationId)
+      );
+
       expect(actual.notifications).toHaveLength(0);
     });
 
     it('should handle clearNotifications', () => {
-      const state1 = errorReducer(initialState, addNotification({
-        message: 'Notification 1',
-        type: 'info',
-      }));
-      const state2 = errorReducer(state1, addNotification({
-        message: 'Notification 2',
-        type: 'success',
-      }));
-      
+      const state1 = errorReducer(
+        initialState,
+        addNotification({
+          message: 'Notification 1',
+          type: 'info',
+        })
+      );
+      const state2 = errorReducer(
+        state1,
+        addNotification({
+          message: 'Notification 2',
+          type: 'success',
+        })
+      );
+
       const actual = errorReducer(state2, clearNotifications());
       expect(actual.notifications).toHaveLength(0);
     });
 
     it('should limit notifications to 20 items', () => {
       let state = initialState;
-      
+
       // Add 22 notifications
       for (let i = 0; i < 22; i++) {
-        state = errorReducer(state, addNotification({
-          message: `Notification ${i}`,
-          type: 'info',
-        }));
+        state = errorReducer(
+          state,
+          addNotification({
+            message: `Notification ${i}`,
+            type: 'info',
+          })
+        );
       }
-      
+
       expect(state.notifications).toHaveLength(20);
     });
 
@@ -303,17 +369,20 @@ describe('errorSlice', () => {
       const originalNow = Date.now;
       const mockNow = 1000000;
       Date.now = jest.fn(() => mockNow);
-      
+
       // Add notifications with different timestamps
       let state = initialState;
-      
+
       // Add expired notification (older than duration)
-      state = errorReducer(state, addNotification({
-        message: 'Expired notification',
-        type: 'info',
-        duration: 1000,
-      }));
-      
+      state = errorReducer(
+        state,
+        addNotification({
+          message: 'Expired notification',
+          type: 'info',
+          duration: 1000,
+        })
+      );
+
       // Manually set timestamp to make it expired
       state = {
         ...state,
@@ -324,28 +393,42 @@ describe('errorSlice', () => {
           },
         ],
       };
-      
+
       // Add persistent notification
-      state = errorReducer(state, addNotification({
-        message: 'Persistent notification',
-        type: 'info',
-        persistent: true,
-      }));
-      
+      state = errorReducer(
+        state,
+        addNotification({
+          message: 'Persistent notification',
+          type: 'info',
+          persistent: true,
+        })
+      );
+
       // Add active notification
-      state = errorReducer(state, addNotification({
-        message: 'Active notification',
-        type: 'info',
-        duration: 5000,
-      }));
-      
+      state = errorReducer(
+        state,
+        addNotification({
+          message: 'Active notification',
+          type: 'info',
+          duration: 5000,
+        })
+      );
+
       const actual = errorReducer(state, clearExpiredNotifications());
-      
+
       expect(actual.notifications).toHaveLength(2); // persistent + active
-      expect(actual.notifications.some(n => n.message === 'Expired notification')).toBe(false);
-      expect(actual.notifications.some(n => n.message === 'Persistent notification')).toBe(true);
-      expect(actual.notifications.some(n => n.message === 'Active notification')).toBe(true);
-      
+      expect(
+        actual.notifications.some((n) => n.message === 'Expired notification')
+      ).toBe(false);
+      expect(
+        actual.notifications.some(
+          (n) => n.message === 'Persistent notification'
+        )
+      ).toBe(true);
+      expect(
+        actual.notifications.some((n) => n.message === 'Active notification')
+      ).toBe(true);
+
       // Restore Date.now
       Date.now = originalNow;
     });

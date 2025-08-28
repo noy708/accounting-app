@@ -1,0 +1,10 @@
+# Netlify Redirects for SPA
+
+# Handle client-side routing
+/*    /index.html   200
+
+# Security redirects
+http://accounting-app.netlify.app/*  https://accounting-app.netlify.app/:splat  301!
+
+# API redirects (if needed)
+/api/*  /.netlify/functions/:splat  200

@@ -28,12 +28,13 @@ export class ReportService {
       };
 
       const transactions = await transactionRepository.getTransactions(filter);
-      
+
       // 基本統計を計算
       const stats = this.calculateBasicStats(transactions);
-      
+
       // カテゴリ別集計を計算
-      const categoryBreakdown = await this.calculateCategoryBreakdown(transactions);
+      const categoryBreakdown =
+        await this.calculateCategoryBreakdown(transactions);
 
       return {
         year,
@@ -46,14 +47,21 @@ export class ReportService {
       };
     } catch (error) {
       console.error('Failed to generate monthly report:', error);
-      throw new DatabaseError('月次レポートの生成に失敗しました', 'database', true);
+      throw new DatabaseError(
+        '月次レポートの生成に失敗しました',
+        'database',
+        true
+      );
     }
   }
 
   /**
    * カテゴリ別レポートを生成
    */
-  async getCategoryReport(startDate: Date, endDate: Date): Promise<CategorySummary[]> {
+  async getCategoryReport(
+    startDate: Date,
+    endDate: Date
+  ): Promise<CategorySummary[]> {
     try {
       const filter: TransactionFilter = {
         startDate,
@@ -64,7 +72,11 @@ export class ReportService {
       return await this.calculateCategoryBreakdown(transactions);
     } catch (error) {
       console.error('Failed to generate category report:', error);
-      throw new DatabaseError('カテゴリ別レポートの生成に失敗しました', 'database', true);
+      throw new DatabaseError(
+        'カテゴリ別レポートの生成に失敗しました',
+        'database',
+        true
+      );
     }
   }
 
@@ -94,7 +106,11 @@ export class ReportService {
       };
     } catch (error) {
       console.error('Failed to generate yearly report:', error);
-      throw new DatabaseError('年次レポートの生成に失敗しました', 'database', true);
+      throw new DatabaseError(
+        '年次レポートの生成に失敗しました',
+        'database',
+        true
+      );
     }
   }
 
@@ -125,20 +141,25 @@ export class ReportService {
   /**
    * カテゴリ別集計を計算
    */
-  private async calculateCategoryBreakdown(transactions: Transaction[]): Promise<CategorySummary[]> {
+  private async calculateCategoryBreakdown(
+    transactions: Transaction[]
+  ): Promise<CategorySummary[]> {
     try {
       // カテゴリ情報を取得
       const categories = await db.categories.toArray();
-      const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+      const categoryMap = new Map(categories.map((cat) => [cat.id, cat]));
 
       // カテゴリ別に取引を集計
-      const categoryStats = new Map<string, {
-        amount: number;
-        transactionCount: number;
-        category: Category;
-      }>();
+      const categoryStats = new Map<
+        string,
+        {
+          amount: number;
+          transactionCount: number;
+          category: Category;
+        }
+      >();
 
-      transactions.forEach(transaction => {
+      transactions.forEach((transaction) => {
         const category = categoryMap.get(transaction.categoryId);
         if (!category) return;
 
@@ -154,11 +175,15 @@ export class ReportService {
       });
 
       // 総支出を計算（割合計算用）
-      const totalAmount = Array.from(categoryStats.values())
-        .reduce((sum, stat) => sum + stat.amount, 0);
+      const totalAmount = Array.from(categoryStats.values()).reduce(
+        (sum, stat) => sum + stat.amount,
+        0
+      );
 
       // CategorySummary配列を生成
-      const categoryBreakdown: CategorySummary[] = Array.from(categoryStats.entries())
+      const categoryBreakdown: CategorySummary[] = Array.from(
+        categoryStats.entries()
+      )
         .map(([categoryId, stats]) => ({
           categoryId,
           categoryName: stats.category.name,
@@ -171,19 +196,28 @@ export class ReportService {
       return categoryBreakdown;
     } catch (error) {
       console.error('Failed to calculate category breakdown:', error);
-      throw new DatabaseError('カテゴリ別集計の計算に失敗しました', 'database', true);
+      throw new DatabaseError(
+        'カテゴリ別集計の計算に失敗しました',
+        'database',
+        true
+      );
     }
   }
 
   /**
    * 指定期間の日別統計を取得（グラフ表示用）
    */
-  async getDailyStats(startDate: Date, endDate: Date): Promise<Array<{
-    date: string;
-    income: number;
-    expense: number;
-    balance: number;
-  }>> {
+  async getDailyStats(
+    startDate: Date,
+    endDate: Date
+  ): Promise<
+    Array<{
+      date: string;
+      income: number;
+      expense: number;
+      balance: number;
+    }>
+  > {
     try {
       const filter: TransactionFilter = {
         startDate,
@@ -191,14 +225,17 @@ export class ReportService {
       };
 
       const transactions = await transactionRepository.getTransactions(filter);
-      
-      // 日別に取引を集計
-      const dailyStats = new Map<string, {
-        income: number;
-        expense: number;
-      }>();
 
-      transactions.forEach(transaction => {
+      // 日別に取引を集計
+      const dailyStats = new Map<
+        string,
+        {
+          income: number;
+          expense: number;
+        }
+      >();
+
+      transactions.forEach((transaction) => {
         const dateKey = transaction.date.toISOString().split('T')[0];
         const existing = dailyStats.get(dateKey) || { income: 0, expense: 0 };
 

@@ -143,3 +143,5 @@ export const CategoryManager: React.FC = () => {
     </Box>
   );
 };
+
+export default CategoryManager;

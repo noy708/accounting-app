@@ -3,6 +3,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MonthlyReport as MonthlyReportType } from '../../../types';
 
+import { MonthlyReport } from '../MonthlyReport';
+import { useGetMonthlyReportQuery } from '../../../store/api/reportApi';
+
 // Mock the useGetMonthlyReportQuery hook
 jest.mock('../../../store/api/reportApi', () => ({
   useGetMonthlyReportQuery: jest.fn(),
@@ -30,9 +33,6 @@ jest.mock('../../common/ErrorDisplay', () => ({
     </div>
   ),
 }));
-
-import { MonthlyReport } from '../MonthlyReport';
-import { useGetMonthlyReportQuery } from '../../../store/api/reportApi';
 
 const mockUseGetMonthlyReportQuery =
   useGetMonthlyReportQuery as jest.MockedFunction<

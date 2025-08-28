@@ -7,18 +7,22 @@ import { Transaction, Category } from '../../../types';
 jest.mock('../../repositories/TransactionRepository');
 jest.mock('../../repositories/CategoryRepository');
 
-const MockedTransactionRepository = TransactionRepository as jest.MockedClass<typeof TransactionRepository>;
-const MockedCategoryRepository = CategoryRepository as jest.MockedClass<typeof CategoryRepository>;
+const MockedTransactionRepository = TransactionRepository as jest.MockedClass<
+  typeof TransactionRepository
+>;
+const MockedCategoryRepository = CategoryRepository as jest.MockedClass<
+  typeof CategoryRepository
+>;
 
 // Mock URL methods for browser environment
 Object.defineProperty(global.URL, 'createObjectURL', {
   writable: true,
-  value: jest.fn(() => 'blob:url')
+  value: jest.fn(() => 'blob:url'),
 });
 
 Object.defineProperty(global.URL, 'revokeObjectURL', {
   writable: true,
-  value: jest.fn()
+  value: jest.fn(),
 });
 
 describe('DataExportService', () => {
@@ -35,7 +39,7 @@ describe('DataExportService', () => {
       categoryId: 'cat1',
       type: 'income',
       createdAt: new Date('2023-01-15T10:00:00'),
-      updatedAt: new Date('2023-01-15T10:00:00')
+      updatedAt: new Date('2023-01-15T10:00:00'),
     },
     {
       id: '2',
@@ -45,8 +49,8 @@ describe('DataExportService', () => {
       categoryId: 'cat2',
       type: 'expense',
       createdAt: new Date('2023-01-20T15:30:00'),
-      updatedAt: new Date('2023-01-20T15:30:00')
-    }
+      updatedAt: new Date('2023-01-20T15:30:00'),
+    },
   ];
 
   const mockCategories: Category[] = [
@@ -57,7 +61,7 @@ describe('DataExportService', () => {
       type: 'income',
       isDefault: true,
       createdAt: new Date('2023-01-01T00:00:00'),
-      updatedAt: new Date('2023-01-01T00:00:00')
+      updatedAt: new Date('2023-01-01T00:00:00'),
     },
     {
       id: 'cat2',
@@ -66,13 +70,13 @@ describe('DataExportService', () => {
       type: 'expense',
       isDefault: false,
       createdAt: new Date('2023-01-01T00:00:00'),
-      updatedAt: new Date('2023-01-01T00:00:00')
-    }
+      updatedAt: new Date('2023-01-01T00:00:00'),
+    },
   ];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Create mock instances with proper method mocking
     mockTransactionRepo = {
       getTransactions: jest.fn(),
@@ -80,20 +84,20 @@ describe('DataExportService', () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
-      search: jest.fn()
+      search: jest.fn(),
     } as any;
-    
+
     mockCategoryRepo = {
       getAll: jest.fn(),
       getById: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
-      canDelete: jest.fn()
+      canDelete: jest.fn(),
     } as any;
-    
+
     service = new DataExportService();
-    
+
     // Replace the repositories with mocks
     (service as any).transactionRepo = mockTransactionRepo;
     (service as any).categoryRepo = mockCategoryRepo;
@@ -106,18 +110,20 @@ describe('DataExportService', () => {
 
       const options: ExportOptions = {
         includeTransactions: true,
-        includeCategories: false
+        includeCategories: false,
       };
 
       const result = await service.exportToCSV(options);
 
       expect(result.transactions).toBeDefined();
       expect(result.categories).toBeUndefined();
-      
+
       const lines = result.transactions!.split('\n');
       expect(lines[0]).toBe('日付,金額,種類,カテゴリ,説明,作成日時,更新日時');
       expect(lines[1]).toContain('2023/01/15,1000,収入,Income Category');
-      expect(lines[2]).toContain('2023/01/20,-500,支出,Expense Category with "quotes"');
+      expect(lines[2]).toContain(
+        '2023/01/20,-500,支出,Expense Category with "quotes"'
+      );
       expect(lines[2]).toContain('"Test expense with ""quotes"""'); // Escaped quotes
     });
 
@@ -126,18 +132,20 @@ describe('DataExportService', () => {
 
       const options: ExportOptions = {
         includeTransactions: false,
-        includeCategories: true
+        includeCategories: true,
       };
 
       const result = await service.exportToCSV(options);
 
       expect(result.categories).toBeDefined();
       expect(result.transactions).toBeUndefined();
-      
+
       const lines = result.categories!.split('\n');
       expect(lines[0]).toBe('カテゴリ名,色,種類,デフォルト,作成日時,更新日時');
       expect(lines[1]).toContain('"Income Category",#4CAF50,収入,はい');
-      expect(lines[2]).toContain('"Expense Category with ""quotes""",#F44336,支出,いいえ'); // Escaped quotes
+      expect(lines[2]).toContain(
+        '"Expense Category with ""quotes""",#F44336,支出,いいえ'
+      ); // Escaped quotes
     });
 
     it('should export both transactions and categories', async () => {
@@ -146,7 +154,7 @@ describe('DataExportService', () => {
 
       const options: ExportOptions = {
         includeTransactions: true,
-        includeCategories: true
+        includeCategories: true,
       };
 
       const result = await service.exportToCSV(options);
@@ -164,15 +172,15 @@ describe('DataExportService', () => {
         includeCategories: false,
         dateRange: {
           startDate: new Date('2023-01-01'),
-          endDate: new Date('2023-01-31')
-        }
+          endDate: new Date('2023-01-31'),
+        },
       };
 
       await service.exportToCSV(options);
 
       expect(mockTransactionRepo.getTransactions).toHaveBeenCalledWith({
         startDate: options.dateRange!.startDate,
-        endDate: options.dateRange!.endDate
+        endDate: options.dateRange!.endDate,
       });
     });
 
@@ -183,7 +191,7 @@ describe('DataExportService', () => {
       const options: ExportOptions = {
         includeTransactions: true,
         includeCategories: false,
-        categoryIds: ['cat1']
+        categoryIds: ['cat1'],
       };
 
       const result = await service.exportToCSV(options);
@@ -200,7 +208,7 @@ describe('DataExportService', () => {
       const progressCallback = jest.fn();
       const options: ExportOptions = {
         includeTransactions: true,
-        includeCategories: true
+        includeCategories: true,
       };
 
       await service.exportToCSV(options, progressCallback);
@@ -209,44 +217,50 @@ describe('DataExportService', () => {
         current: 0,
         total: 2,
         stage: 'preparing',
-        message: 'エクスポートを準備中...'
+        message: 'エクスポートを準備中...',
       });
 
       expect(progressCallback).toHaveBeenCalledWith({
         current: 2,
         total: 2,
         stage: 'complete',
-        message: 'エクスポート完了'
+        message: 'エクスポート完了',
       });
     });
 
     it('should handle export errors', async () => {
-      mockTransactionRepo.getTransactions.mockRejectedValue(new Error('Database error'));
+      mockTransactionRepo.getTransactions.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const options: ExportOptions = {
         includeTransactions: true,
-        includeCategories: false
+        includeCategories: false,
       };
 
-      await expect(service.exportToCSV(options)).rejects.toThrow('エクスポートに失敗しました: Database error');
+      await expect(service.exportToCSV(options)).rejects.toThrow(
+        'エクスポートに失敗しました: Database error'
+      );
     });
 
     it('should handle unknown category in transactions', async () => {
       const transactionWithUnknownCategory = {
         ...mockTransactions[0],
-        categoryId: 'unknown-category'
+        categoryId: 'unknown-category',
       };
-      
-      mockTransactionRepo.getTransactions.mockResolvedValue([transactionWithUnknownCategory]);
+
+      mockTransactionRepo.getTransactions.mockResolvedValue([
+        transactionWithUnknownCategory,
+      ]);
       mockCategoryRepo.getAll.mockResolvedValue(mockCategories);
 
       const options: ExportOptions = {
         includeTransactions: true,
-        includeCategories: false
+        includeCategories: false,
       };
 
       const result = await service.exportToCSV(options);
-      
+
       const lines = result.transactions!.split('\n');
       expect(lines[1]).toContain('Unknown'); // Should show 'Unknown' for missing category
     });
@@ -263,15 +277,25 @@ describe('DataExportService', () => {
         download: '',
         setAttribute: jest.fn(),
         click: jest.fn(),
-        style: { visibility: '' }
+        style: { visibility: '' },
       };
 
-      mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockLink);
-      jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink);
-      jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink);
-      
-      mockCreateObjectURL = jest.spyOn(global.URL, 'createObjectURL').mockReturnValue('blob:url');
-      mockRevokeObjectURL = jest.spyOn(global.URL, 'revokeObjectURL').mockImplementation();
+      mockCreateElement = jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(mockLink);
+      jest
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockLink);
+      jest
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockLink);
+
+      mockCreateObjectURL = jest
+        .spyOn(global.URL, 'createObjectURL')
+        .mockReturnValue('blob:url');
+      mockRevokeObjectURL = jest
+        .spyOn(global.URL, 'revokeObjectURL')
+        .mockImplementation();
     });
 
     afterEach(() => {
@@ -292,7 +316,7 @@ describe('DataExportService', () => {
       expect(mockLink.click).toHaveBeenCalled();
       expect(mockCreateObjectURL).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'text/csv;charset=utf-8;'
+          type: 'text/csv;charset=utf-8;',
         })
       );
       expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:url');

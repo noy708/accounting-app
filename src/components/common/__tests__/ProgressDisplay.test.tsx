@@ -31,13 +31,12 @@ const createMockStore = (initialState = {}) => {
   });
 };
 
-const renderWithStore = (component: React.ReactElement, store = createMockStore()) => {
+const renderWithStore = (
+  component: React.ReactElement,
+  store = createMockStore()
+) => {
   return {
-    ...render(
-      <Provider store={store}>
-        {component}
-      </Provider>
-    ),
+    ...render(<Provider store={store}>{component}</Provider>),
     store,
   };
 };
@@ -128,11 +127,11 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay 
-        variant="detailed" 
-        showCompleted={true} 
-        showFailed={true} 
-      />, 
+      <ProgressDisplay
+        variant="detailed"
+        showCompleted={true}
+        showFailed={true}
+      />,
       store
     );
 
@@ -171,10 +170,7 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay 
-        variant="compact" 
-        showCompleted={true} 
-      />, 
+      <ProgressDisplay variant="compact" showCompleted={true} />,
       store
     );
 
@@ -204,10 +200,7 @@ describe('ProgressDisplay', () => {
       loadingCount: 10,
     });
 
-    renderWithStore(
-      <ProgressDisplay variant="compact" maxItems={3} />, 
-      store
-    );
+    renderWithStore(<ProgressDisplay variant="compact" maxItems={3} />, store);
 
     // Should only show 3 operations (the first 3 in this case)
     expect(screen.getByText('Operation 0')).toBeInTheDocument();
@@ -263,7 +256,7 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay variant="compact" showCompleted={true} />, 
+      <ProgressDisplay variant="compact" showCompleted={true} />,
       store
     );
 
@@ -288,10 +281,7 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay 
-        variant="detailed" 
-        showCompleted={false} 
-      />, 
+      <ProgressDisplay variant="detailed" showCompleted={false} />,
       store
     );
 
@@ -309,10 +299,7 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay 
-        variant="detailed" 
-        showFailed={false} 
-      />, 
+      <ProgressDisplay variant="detailed" showFailed={false} />,
       store
     );
 
@@ -330,10 +317,7 @@ describe('ProgressDisplay', () => {
     });
 
     renderWithStore(
-      <ProgressDisplay 
-        variant="compact" 
-        onOperationCancel={mockOnCancel} 
-      />, 
+      <ProgressDisplay variant="compact" onOperationCancel={mockOnCancel} />,
       store
     );
 

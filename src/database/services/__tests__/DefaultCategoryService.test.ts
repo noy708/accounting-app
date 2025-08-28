@@ -1,4 +1,7 @@
-import { DefaultCategoryService, defaultCategoryService } from '../DefaultCategoryService';
+import {
+  DefaultCategoryService,
+  defaultCategoryService,
+} from '../DefaultCategoryService';
 import { categoryRepository } from '../../repositories/CategoryRepository';
 import { Category } from '../../../types';
 
@@ -10,7 +13,9 @@ jest.mock('../../repositories/CategoryRepository', () => ({
   },
 }));
 
-const mockCategoryRepository = categoryRepository as jest.Mocked<typeof categoryRepository>;
+const mockCategoryRepository = categoryRepository as jest.Mocked<
+  typeof categoryRepository
+>;
 
 describe('DefaultCategoryService', () => {
   beforeEach(() => {
@@ -28,7 +33,9 @@ describe('DefaultCategoryService', () => {
 
       expect(mockCategoryRepository.getCategories).toHaveBeenCalled();
       expect(mockCategoryRepository.createDefaultCategories).toHaveBeenCalled();
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(true);
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        true
+      );
     });
 
     it('skips creation when categories already exist', async () => {
@@ -44,29 +51,41 @@ describe('DefaultCategoryService', () => {
         },
       ];
 
-      mockCategoryRepository.getCategories.mockResolvedValue(existingCategories);
+      mockCategoryRepository.getCategories.mockResolvedValue(
+        existingCategories
+      );
 
       await defaultCategoryService.initializeDefaultCategories();
 
       expect(mockCategoryRepository.getCategories).toHaveBeenCalled();
-      expect(mockCategoryRepository.createDefaultCategories).not.toHaveBeenCalled();
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(true);
+      expect(
+        mockCategoryRepository.createDefaultCategories
+      ).not.toHaveBeenCalled();
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        true
+      );
     });
 
     it('handles errors gracefully without throwing', async () => {
-      mockCategoryRepository.getCategories.mockRejectedValue(new Error('Database error'));
+      mockCategoryRepository.getCategories.mockRejectedValue(
+        new Error('Database error')
+      );
 
       // Should not throw
-      await expect(defaultCategoryService.initializeDefaultCategories()).resolves.toBeUndefined();
+      await expect(
+        defaultCategoryService.initializeDefaultCategories()
+      ).resolves.toBeUndefined();
 
-      expect(mockCategoryRepository.createDefaultCategories).not.toHaveBeenCalled();
+      expect(
+        mockCategoryRepository.createDefaultCategories
+      ).not.toHaveBeenCalled();
     });
 
     it('only initializes once', async () => {
       // Create a fresh instance for this test to avoid state pollution
       const freshService = DefaultCategoryService.getInstance();
       freshService.resetInitializationState();
-      
+
       mockCategoryRepository.getCategories.mockResolvedValue([]);
       mockCategoryRepository.createDefaultCategories.mockResolvedValue();
 
@@ -76,7 +95,9 @@ describe('DefaultCategoryService', () => {
 
       // Should only call repository methods once (the second call should be skipped)
       expect(mockCategoryRepository.getCategories).toHaveBeenCalledTimes(1);
-      expect(mockCategoryRepository.createDefaultCategories).toHaveBeenCalledTimes(1);
+      expect(
+        mockCategoryRepository.createDefaultCategories
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -92,11 +113,13 @@ describe('DefaultCategoryService', () => {
     });
 
     it('throws error when creation fails', async () => {
-      mockCategoryRepository.createDefaultCategories.mockRejectedValue(new Error('Creation failed'));
-
-      await expect(defaultCategoryService.forceCreateDefaultCategories()).rejects.toThrow(
-        'デフォルトカテゴリの強制作成に失敗しました'
+      mockCategoryRepository.createDefaultCategories.mockRejectedValue(
+        new Error('Creation failed')
       );
+
+      await expect(
+        defaultCategoryService.forceCreateDefaultCategories()
+      ).rejects.toThrow('デフォルトカテゴリの強制作成に失敗しました');
     });
   });
 
@@ -115,7 +138,7 @@ describe('DefaultCategoryService', () => {
     it('returns templates with required properties', () => {
       const templates = defaultCategoryService.getDefaultCategoryTemplates();
 
-      templates.expense.forEach(template => {
+      templates.expense.forEach((template) => {
         expect(template).toHaveProperty('name');
         expect(template).toHaveProperty('color');
         expect(template).toHaveProperty('description');
@@ -125,7 +148,7 @@ describe('DefaultCategoryService', () => {
         expect(template.color).toMatch(/^#[0-9A-F]{6}$/i);
       });
 
-      templates.income.forEach(template => {
+      templates.income.forEach((template) => {
         expect(template).toHaveProperty('name');
         expect(template).toHaveProperty('color');
         expect(template).toHaveProperty('description');
@@ -148,14 +171,18 @@ describe('DefaultCategoryService', () => {
 
   describe('state management', () => {
     it('tracks initialization state correctly', async () => {
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(false);
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        false
+      );
 
       mockCategoryRepository.getCategories.mockResolvedValue([]);
       mockCategoryRepository.createDefaultCategories.mockResolvedValue();
 
       await defaultCategoryService.initializeDefaultCategories();
 
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(true);
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        true
+      );
     });
 
     it('can reset initialization state', async () => {
@@ -163,17 +190,21 @@ describe('DefaultCategoryService', () => {
       mockCategoryRepository.createDefaultCategories.mockResolvedValue();
 
       await defaultCategoryService.initializeDefaultCategories();
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(true);
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        true
+      );
 
       defaultCategoryService.resetInitializationState();
-      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(false);
+      expect(defaultCategoryService.isDefaultCategoriesInitialized()).toBe(
+        false
+      );
     });
   });
 
   describe('template content validation', () => {
     it('includes expected expense categories', () => {
       const templates = defaultCategoryService.getDefaultCategoryTemplates();
-      const expenseNames = templates.expense.map(t => t.name);
+      const expenseNames = templates.expense.map((t) => t.name);
 
       expect(expenseNames).toContain('食費');
       expect(expenseNames).toContain('交通費');
@@ -183,7 +214,7 @@ describe('DefaultCategoryService', () => {
 
     it('includes expected income categories', () => {
       const templates = defaultCategoryService.getDefaultCategoryTemplates();
-      const incomeNames = templates.income.map(t => t.name);
+      const incomeNames = templates.income.map((t) => t.name);
 
       expect(incomeNames).toContain('給与');
       expect(incomeNames).toContain('副業');

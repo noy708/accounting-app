@@ -1,4 +1,9 @@
-import { Transaction, Category, CreateTransactionDto, CreateCategoryDto } from '../../types';
+import {
+  Transaction,
+  Category,
+  CreateTransactionDto,
+  CreateCategoryDto,
+} from '../../types';
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { CategoryRepository } from '../repositories/CategoryRepository';
 
@@ -70,14 +75,14 @@ export class DataImportService {
     options: ImportOptions = {
       skipDuplicates: true,
       updateExisting: false,
-      createMissingCategories: true
+      createMissingCategories: true,
     },
     onProgress?: (progress: ImportProgress) => void
   ): Promise<ImportResult> {
     const result: ImportResult = {
       transactions: { imported: 0, skipped: 0, errors: 0 },
       categories: { imported: 0, skipped: 0, errors: 0 },
-      errors: []
+      errors: [],
     };
 
     let totalSteps = 0;
@@ -91,7 +96,7 @@ export class DataImportService {
       current: 0,
       total: totalSteps,
       stage: 'parsing',
-      message: 'データを解析中...'
+      message: 'データを解析中...',
     });
 
     try {
@@ -101,10 +106,14 @@ export class DataImportService {
           current: currentStep,
           total: totalSteps,
           stage: 'importing',
-          message: 'カテゴリをインポート中...'
+          message: 'カテゴリをインポート中...',
         });
 
-        const categoryResult = await this.importCategories(categoriesCsv, options, onProgress);
+        const categoryResult = await this.importCategories(
+          categoriesCsv,
+          options,
+          onProgress
+        );
         result.categories = categoryResult.categories;
         result.errors.push(...categoryResult.errors);
         currentStep++;
@@ -116,10 +125,14 @@ export class DataImportService {
           current: currentStep,
           total: totalSteps,
           stage: 'importing',
-          message: '取引をインポート中...'
+          message: '取引をインポート中...',
         });
 
-        const transactionResult = await this.importTransactions(transactionsCsv, options, onProgress);
+        const transactionResult = await this.importTransactions(
+          transactionsCsv,
+          options,
+          onProgress
+        );
         result.transactions = transactionResult.transactions;
         result.errors.push(...transactionResult.errors);
         currentStep++;
@@ -129,12 +142,14 @@ export class DataImportService {
         current: totalSteps,
         total: totalSteps,
         stage: 'complete',
-        message: 'インポート完了'
+        message: 'インポート完了',
       });
 
       return result;
     } catch (error) {
-      throw new Error(`インポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `インポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -145,20 +160,25 @@ export class DataImportService {
   ): Promise<Pick<ImportResult, 'categories' | 'errors'>> {
     const result = {
       categories: { imported: 0, skipped: 0, errors: 0 },
-      errors: [] as ImportError[]
+      errors: [] as ImportError[],
     };
 
     try {
       const parsedData = this.parseCSV<ParsedCategoryData>(csv);
-      const existingCategories = await this.categoryRepo.getAll();
-      const existingCategoryNames = new Set(existingCategories.map(c => c.name.toLowerCase()));
+      const existingCategories = await this.categoryRepo.getCategories();
+      const existingCategoryNames = new Set(
+        existingCategories.map((c) => c.name.toLowerCase())
+      );
 
       for (let i = 0; i < parsedData.length; i++) {
         const rowData = parsedData[i];
         const rowNumber = i + 2; // +2 because of header row and 0-based index
 
         try {
-          const validationResult = this.validateCategoryData(rowData, rowNumber);
+          const validationResult = this.validateCategoryData(
+            rowData,
+            rowNumber
+          );
           if (!validationResult.isValid) {
             result.errors.push(...validationResult.errors);
             result.categories.errors++;
@@ -175,12 +195,12 @@ export class DataImportService {
             } else if (options.updateExisting) {
               // Find existing category and update
               const existingCategory = existingCategories.find(
-                c => c.name.toLowerCase() === categoryData.name.toLowerCase()
+                (c) => c.name.toLowerCase() === categoryData.name.toLowerCase()
               );
               if (existingCategory) {
-                await this.categoryRepo.update(existingCategory.id, {
+                await this.categoryRepo.updateCategory(existingCategory.id, {
                   color: categoryData.color,
-                  type: categoryData.type
+                  type: categoryData.type,
                 });
                 result.categories.imported++;
                 continue;
@@ -189,15 +209,14 @@ export class DataImportService {
           }
 
           // Create new category
-          await this.categoryRepo.create(categoryData);
+          await this.categoryRepo.createCategory(categoryData);
           existingCategoryNames.add(categoryData.name.toLowerCase());
           result.categories.imported++;
-
         } catch (error) {
           result.errors.push({
             row: rowNumber,
             message: `カテゴリの処理中にエラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            data: rowData
+            data: rowData,
           });
           result.categories.errors++;
         }
@@ -205,7 +224,7 @@ export class DataImportService {
     } catch (error) {
       result.errors.push({
         row: 0,
-        message: `カテゴリCSVの解析に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `カテゴリCSVの解析に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
 
@@ -219,21 +238,30 @@ export class DataImportService {
   ): Promise<Pick<ImportResult, 'transactions' | 'errors'>> {
     const result = {
       transactions: { imported: 0, skipped: 0, errors: 0 },
-      errors: [] as ImportError[]
+      errors: [] as ImportError[],
     };
 
     try {
       const parsedData = this.parseCSV<ParsedTransactionData>(csv);
-      const existingCategories = await this.categoryRepo.getAll();
-      const categoryMap = new Map(existingCategories.map(c => [c.name.toLowerCase(), c.id]));
-      const existingTransactions = await this.transactionRepo.getTransactions({});
+      const existingCategories = await this.categoryRepo.getCategories();
+      const categoryMap = new Map(
+        existingCategories.map((c) => [c.name.toLowerCase(), c.id])
+      );
+      const existingTransactions = await this.transactionRepo.getTransactions(
+        {}
+      );
 
       for (let i = 0; i < parsedData.length; i++) {
         const rowData = parsedData[i];
         const rowNumber = i + 2; // +2 because of header row and 0-based index
 
         try {
-          const validationResult = this.validateTransactionData(rowData, rowNumber, categoryMap, options);
+          const validationResult = this.validateTransactionData(
+            rowData,
+            rowNumber,
+            categoryMap,
+            options
+          );
           if (!validationResult.isValid) {
             result.errors.push(...validationResult.errors);
             result.transactions.errors++;
@@ -243,12 +271,14 @@ export class DataImportService {
           const transactionData = validationResult.data!;
 
           // Check for duplicates (same date, amount, description, and category)
-          const isDuplicate = existingTransactions.some(t => 
-            t.date && transactionData.date &&
-            t.date.toDateString() === transactionData.date.toDateString() &&
-            t.amount === transactionData.amount &&
-            t.description === transactionData.description &&
-            t.categoryId === transactionData.categoryId
+          const isDuplicate = existingTransactions.some(
+            (t) =>
+              t.date &&
+              transactionData.date &&
+              t.date.toDateString() === transactionData.date.toDateString() &&
+              t.amount === transactionData.amount &&
+              t.description === transactionData.description &&
+              t.categoryId === transactionData.categoryId
           );
 
           if (isDuplicate && options.skipDuplicates) {
@@ -257,15 +287,15 @@ export class DataImportService {
           }
 
           // Create new transaction
-          const newTransaction = await this.transactionRepo.create(transactionData);
+          const newTransaction =
+            await this.transactionRepo.createTransaction(transactionData);
           existingTransactions.push(newTransaction);
           result.transactions.imported++;
-
         } catch (error) {
           result.errors.push({
             row: rowNumber,
             message: `取引の処理中にエラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            data: rowData
+            data: rowData,
           });
           result.transactions.errors++;
         }
@@ -273,7 +303,7 @@ export class DataImportService {
     } catch (error) {
       result.errors.push({
         row: 0,
-        message: `取引CSVの解析に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `取引CSVの解析に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
 
@@ -286,13 +316,17 @@ export class DataImportService {
       throw new Error('CSVファイルにデータが含まれていません');
     }
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const headers = lines[0]
+      .split(',')
+      .map((h) => h.trim().replace(/^"|"$/g, ''));
     const data: T[] = [];
 
     for (let i = 1; i < lines.length; i++) {
       const values = this.parseCSVLine(lines[i]);
       if (values.length !== headers.length) {
-        throw new Error(`行 ${i + 1}: 列数が一致しません (期待: ${headers.length}, 実際: ${values.length})`);
+        throw new Error(
+          `行 ${i + 1}: 列数が一致しません (期待: ${headers.length}, 実際: ${values.length})`
+        );
       }
 
       const row: any = {};
@@ -342,16 +376,16 @@ export class DataImportService {
 
   private mapHeaderToField(header: string): string {
     const headerMap: { [key: string]: string } = {
-      '日付': 'date',
-      '金額': 'amount',
-      '種類': 'type',
-      'カテゴリ': 'category',
-      '説明': 'description',
-      '作成日時': 'createdAt',
-      '更新日時': 'updatedAt',
-      'カテゴリ名': 'name',
-      '色': 'color',
-      'デフォルト': 'isDefault'
+      日付: 'date',
+      金額: 'amount',
+      種類: 'type',
+      カテゴリ: 'category',
+      説明: 'description',
+      作成日時: 'createdAt',
+      更新日時: 'updatedAt',
+      カテゴリ名: 'name',
+      色: 'color',
+      デフォルト: 'isDefault',
     };
 
     return headerMap[header] || header.toLowerCase();
@@ -368,7 +402,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'name',
-        message: 'カテゴリ名は必須です'
+        message: 'カテゴリ名は必須です',
       });
     }
 
@@ -376,7 +410,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'color',
-        message: '色は必須です'
+        message: '色は必須です',
       });
     }
 
@@ -384,7 +418,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'type',
-        message: '種類は「収入」「支出」「両方」のいずれかである必要があります'
+        message: '種類は「収入」「支出」「両方」のいずれかである必要があります',
       });
     }
 
@@ -413,9 +447,9 @@ export class DataImportService {
       data: {
         name: data.name.trim(),
         color: data.color.trim(),
-        type
+        type,
       },
-      errors: []
+      errors: [],
     };
   }
 
@@ -439,7 +473,7 @@ export class DataImportService {
       } else {
         date = new Date(dateStr);
       }
-      
+
       if (isNaN(date.getTime())) {
         throw new Error('Invalid date');
       }
@@ -447,7 +481,8 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'date',
-        message: '日付の形式が正しくありません (YYYY/MM/DD形式で入力してください)'
+        message:
+          '日付の形式が正しくありません (YYYY/MM/DD形式で入力してください)',
       });
       date = new Date(); // Set a default to avoid undefined
     }
@@ -463,7 +498,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'amount',
-        message: '金額は数値である必要があります'
+        message: '金額は数値である必要があります',
       });
       amount = 0; // Set a default to avoid undefined
     }
@@ -473,7 +508,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'type',
-        message: '種類は「収入」または「支出」である必要があります'
+        message: '種類は「収入」または「支出」である必要があります',
       });
     }
 
@@ -483,25 +518,25 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'category',
-        message: 'カテゴリは必須です'
+        message: 'カテゴリは必須です',
       });
     } else {
       const categoryName = data.category.trim().toLowerCase();
       categoryId = categoryMap.get(categoryName) || '';
-      
+
       if (!categoryId) {
         if (options.createMissingCategories) {
           // This would need to be handled at a higher level
           errors.push({
             row: rowNumber,
             field: 'category',
-            message: `カテゴリ「${data.category}」が見つかりません。先にカテゴリをインポートしてください。`
+            message: `カテゴリ「${data.category}」が見つかりません。先にカテゴリをインポートしてください。`,
           });
         } else {
           errors.push({
             row: rowNumber,
             field: 'category',
-            message: `カテゴリ「${data.category}」が見つかりません`
+            message: `カテゴリ「${data.category}」が見つかりません`,
           });
         }
       }
@@ -512,7 +547,7 @@ export class DataImportService {
       errors.push({
         row: rowNumber,
         field: 'description',
-        message: '説明は必須です'
+        message: '説明は必須です',
       });
     }
 
@@ -521,7 +556,8 @@ export class DataImportService {
     }
 
     // Map type
-    const type: 'income' | 'expense' = data.type === '収入' ? 'income' : 'expense';
+    const type: 'income' | 'expense' =
+      data.type === '収入' ? 'income' : 'expense';
 
     // Ensure amount sign matches type
     if (type === 'income' && amount! < 0) {
@@ -537,9 +573,9 @@ export class DataImportService {
         amount: amount!,
         description: data.description.trim(),
         categoryId: categoryId!,
-        type
+        type,
       },
-      errors: []
+      errors: [],
     };
   }
 }

@@ -38,8 +38,10 @@ export class PerformanceMonitor {
       const start = performance.now();
       const result = renderFunction(...args);
       const end = performance.now();
-      
-      console.log(`[Render Time] ${componentName}: ${(end - start).toFixed(2)}ms`);
+
+      console.log(
+        `[Render Time] ${componentName}: ${(end - start).toFixed(2)}ms`
+      );
       return result;
     }) as T;
   }
@@ -53,11 +55,15 @@ export class PerformanceMonitor {
     try {
       const result = await operation();
       const end = performance.now();
-      console.log(`[Async Operation] ${operationName}: ${(end - start).toFixed(2)}ms`);
+      console.log(
+        `[Async Operation] ${operationName}: ${(end - start).toFixed(2)}ms`
+      );
       return result;
     } catch (error) {
       const end = performance.now();
-      console.log(`[Async Operation Failed] ${operationName}: ${(end - start).toFixed(2)}ms`);
+      console.log(
+        `[Async Operation Failed] ${operationName}: ${(end - start).toFixed(2)}ms`
+      );
       throw error;
     }
   }
@@ -76,7 +82,7 @@ export class PerformanceMonitor {
 // React hook for performance monitoring
 export const usePerformanceMonitor = () => {
   const monitor = PerformanceMonitor.getInstance();
-  
+
   return {
     measureRender: monitor.measureRender.bind(monitor),
     measureAsync: monitor.measureAsync.bind(monitor),
@@ -94,8 +100,10 @@ export function withPerformanceMonitoring<P extends object>(
     const start = performance.now();
     const result = React.createElement(WrappedComponent, props);
     const end = performance.now();
-    
-    console.log(`[Render Time] ${componentName}: ${(end - start).toFixed(2)}ms`);
+
+    console.log(
+      `[Render Time] ${componentName}: ${(end - start).toFixed(2)}ms`
+    );
     return result;
   };
 
@@ -109,7 +117,7 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -122,7 +130,7 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
-  
+
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);

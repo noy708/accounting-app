@@ -44,7 +44,12 @@ describe('TransactionHistoryService', () => {
 
       mockDb.transactionHistory.add.mockResolvedValue('history1');
 
-      const result = await service.recordHistory('trans1', 'create', undefined, transactionData);
+      const result = await service.recordHistory(
+        'trans1',
+        'create',
+        undefined,
+        transactionData
+      );
 
       expect(mockDb.transactionHistory.add).toHaveBeenCalledWith({
         id: 'mock-uuid',
@@ -86,9 +91,19 @@ describe('TransactionHistoryService', () => {
 
       mockDb.transactionHistory.add.mockResolvedValue('history2');
 
-      const result = await service.recordHistory('trans1', 'update', previousData, newData);
+      const result = await service.recordHistory(
+        'trans1',
+        'update',
+        previousData,
+        newData
+      );
 
-      expect(result.changes).toEqual(['date', 'amount', 'description', 'categoryId']);
+      expect(result.changes).toEqual([
+        'date',
+        'amount',
+        'description',
+        'categoryId',
+      ]);
       expect(mockDb.transactionHistory.add).toHaveBeenCalledWith({
         id: 'mock-uuid',
         transactionId: 'trans1',
@@ -111,7 +126,12 @@ describe('TransactionHistoryService', () => {
 
       mockDb.transactionHistory.add.mockResolvedValue('history3');
 
-      const result = await service.recordHistory('trans1', 'update', sameData, sameData);
+      const result = await service.recordHistory(
+        'trans1',
+        'update',
+        sameData,
+        sameData
+      );
 
       expect(result.changes).toBeUndefined();
     });
@@ -126,7 +146,12 @@ describe('TransactionHistoryService', () => {
 
       mockDb.transactionHistory.add.mockResolvedValue('history4');
 
-      const result = await service.recordHistory('trans1', 'delete', transactionData, undefined);
+      const result = await service.recordHistory(
+        'trans1',
+        'delete',
+        transactionData,
+        undefined
+      );
 
       expect(mockDb.transactionHistory.add).toHaveBeenCalledWith({
         id: 'mock-uuid',
@@ -168,7 +193,9 @@ describe('TransactionHistoryService', () => {
 
       const result = await service.getTransactionHistory('trans1');
 
-      expect(mockDb.transactionHistory.where).toHaveBeenCalledWith('transactionId');
+      expect(mockDb.transactionHistory.where).toHaveBeenCalledWith(
+        'transactionId'
+      );
       expect(mockQuery.equals).toHaveBeenCalledWith('trans1');
       expect(mockQuery.orderBy).toHaveBeenCalledWith('timestamp');
       expect(result).toEqual(mockHistory);
@@ -196,7 +223,9 @@ describe('TransactionHistoryService', () => {
 
       const result = await service.getAllHistory();
 
-      expect(mockDb.transactionHistory.orderBy).toHaveBeenCalledWith('timestamp');
+      expect(mockDb.transactionHistory.orderBy).toHaveBeenCalledWith(
+        'timestamp'
+      );
       expect(mockQuery.reverse).toHaveBeenCalled();
       expect(result).toEqual(mockHistory);
     });
@@ -240,7 +269,9 @@ describe('TransactionHistoryService', () => {
 
       await service.deleteTransactionHistory('trans1');
 
-      expect(mockDb.transactionHistory.where).toHaveBeenCalledWith('transactionId');
+      expect(mockDb.transactionHistory.where).toHaveBeenCalledWith(
+        'transactionId'
+      );
       expect(mockQuery.equals).toHaveBeenCalledWith('trans1');
       expect(mockQuery.delete).toHaveBeenCalled();
     });
@@ -288,7 +319,9 @@ describe('TransactionHistoryService', () => {
 
       await service.cleanupOldHistory(2);
 
-      expect(mockDb.transactionHistory.bulkDelete).toHaveBeenCalledWith(['hist3']);
+      expect(mockDb.transactionHistory.bulkDelete).toHaveBeenCalledWith([
+        'hist3',
+      ]);
     });
 
     it('uses default keepLastN value', async () => {
@@ -318,7 +351,11 @@ describe('TransactionHistoryService', () => {
 
       // Should delete the 5 oldest entries (hist5 to hist1, since they're reversed)
       expect(mockDb.transactionHistory.bulkDelete).toHaveBeenCalledWith([
-        'hist5', 'hist4', 'hist3', 'hist2', 'hist1'
+        'hist5',
+        'hist4',
+        'hist3',
+        'hist2',
+        'hist1',
       ]);
     });
   });

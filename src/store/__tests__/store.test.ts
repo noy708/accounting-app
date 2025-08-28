@@ -23,11 +23,11 @@ describe('Redux Store Integration', () => {
 
   it('should have the correct initial state structure', () => {
     const state = store.getState();
-    
+
     expect(state).toHaveProperty('transactions');
     expect(state).toHaveProperty('categories');
     expect(state).toHaveProperty('errors');
-    
+
     // Check initial state structure
     expect(state.transactions).toMatchObject({
       transactions: [],
@@ -37,14 +37,14 @@ describe('Redux Store Integration', () => {
       filter: {},
       lastUpdated: null,
     });
-    
+
     expect(state.categories).toMatchObject({
       categories: [],
       currentCategory: null,
       loading: { isLoading: false },
       lastUpdated: null,
     });
-    
+
     expect(state.errors).toMatchObject({
       errors: [],
       globalError: null,
@@ -65,7 +65,7 @@ describe('Redux Store Integration', () => {
     };
 
     store.dispatch(addTransaction(mockTransaction));
-    
+
     const state = store.getState();
     expect(state.transactions.transactions).toHaveLength(1);
     expect(state.transactions.transactions[0]).toEqual(mockTransaction);
@@ -84,7 +84,7 @@ describe('Redux Store Integration', () => {
     };
 
     store.dispatch(addCategory(mockCategory));
-    
+
     const state = store.getState();
     expect(state.categories.categories).toHaveLength(1);
     expect(state.categories.categories[0]).toEqual(mockCategory);
@@ -99,7 +99,7 @@ describe('Redux Store Integration', () => {
     };
 
     store.dispatch(addError(mockError));
-    
+
     const state = store.getState();
     expect(state.errors.errors).toHaveLength(1);
     expect(state.errors.lastError).toEqual(mockError);

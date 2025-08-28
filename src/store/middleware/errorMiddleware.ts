@@ -1,13 +1,18 @@
-import { isRejectedWithValue, Middleware, createListenerMiddleware } from '@reduxjs/toolkit';
-import { 
-  addError, 
-  addDatabaseError, 
-  addBusinessError, 
-  addSystemError, 
-  addValidationError, 
-  addRetryableError, 
+import {
+  isRejectedWithValue,
+  Middleware,
+  createListenerMiddleware,
+  AnyAction,
+} from '@reduxjs/toolkit';
+import {
+  addError,
+  addDatabaseError,
+  addBusinessError,
+  addSystemError,
+  addValidationError,
+  addRetryableError,
   incrementRetryCount,
-  removeFromRetryQueue
+  removeFromRetryQueue,
 } from '../slices/errorSlice';
 import { DatabaseError } from '../../database/connection';
 import { ErrorState } from '../../types';
@@ -22,7 +27,9 @@ const RETRY_CONFIG = {
 /**
  * Enhanced error classification
  */
-const classifyError = (error: any): { type: ErrorState['type']; retryable: boolean; message: string } => {
+const classifyError = (
+  error: any
+): { type: ErrorState['type']; retryable: boolean; message: string } => {
   // Network errors
   if (error?.status === 'FETCH_ERROR' || error?.name === 'NetworkError') {
     return {
@@ -31,7 +38,7 @@ const classifyError = (error: any): { type: ErrorState['type']; retryable: boole
       message: 'ネットワークエラーが発生しました。接続を確認してください。',
     };
   }
-  
+
   // Timeout errors
   if (error?.name === 'TimeoutError' || error?.code === 'TIMEOUT') {
     return {
@@ -40,7 +47,7 @@ const classifyError = (error: any): { type: ErrorState['type']; retryable: boole
       message: 'リクエストがタイムアウトしました。',
     };
   }
-  
+
   // Database errors
   if (error instanceof DatabaseError) {
     return {
@@ -49,7 +56,7 @@ const classifyError = (error: any): { type: ErrorState['type']; retryable: boole
       message: error.message,
     };
   }
-  
+
   // HTTP status codes
   if (error?.status) {
     const status = error.status;
@@ -57,13 +64,15 @@ const classifyError = (error: any): { type: ErrorState['type']; retryable: boole
       return {
         type: 'system',
         retryable: true,
-        message: 'サーバーエラーが発生しました。しばらく待ってから再試行してください。',
+        message:
+          'サーバーエラーが発生しました。しばらく待ってから再試行してください。',
       };
     } else if (status === 429) {
       return {
         type: 'system',
         retryable: true,
-        message: 'リクエストが多すぎます。しばらく待ってから再試行してください。',
+        message:
+          'リクエストが多すぎます。しばらく待ってから再試行してください。',
       };
     } else if (status >= 400) {
       return {
@@ -73,7 +82,7 @@ const classifyError = (error: any): { type: ErrorState['type']; retryable: boole
       };
     }
   }
-  
+
   // Default classification
   return {
     type: 'system',
@@ -91,46 +100,56 @@ export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
 
     const error = action.payload;
     const { type, retryable, message } = classifyError(error);
-    
+
     // Create error state
     const errorState: ErrorState = {
       message,
       type,
       retryable,
     };
-    
+
     // Add to retry queue if retryable
-    if (retryable && shouldRetry(action)) {
-      api.dispatch(addRetryableError({
-        originalAction: action.meta?.arg,
-        error: errorState,
-        maxRetries: RETRY_CONFIG.maxRetries,
-      }));
+    if (retryable && shouldRetry(action as AnyAction)) {
+      api.dispatch(
+        addRetryableError({
+          originalAction: (action as AnyAction).meta?.arg,
+          error: errorState,
+          maxRetries: RETRY_CONFIG.maxRetries,
+        })
+      );
     }
-    
+
     // Dispatch appropriate error action
     switch (type) {
       case 'validation':
-        api.dispatch(addValidationError({
-          field: 'general',
-          message,
-        }));
+        api.dispatch(
+          addValidationError({
+            field: 'general',
+            message,
+          })
+        );
         break;
       case 'database':
-        api.dispatch(addDatabaseError({
-          message,
-          retryable,
-        }));
+        api.dispatch(
+          addDatabaseError({
+            message,
+            retryable,
+          })
+        );
         break;
       case 'business':
-        api.dispatch(addBusinessError({
-          message,
-        }));
+        api.dispatch(
+          addBusinessError({
+            message,
+          })
+        );
         break;
       case 'system':
-        api.dispatch(addSystemError({
-          message,
-        }));
+        api.dispatch(
+          addSystemError({
+            message,
+          })
+        );
         break;
       default:
         api.dispatch(addError(errorState));
@@ -143,15 +162,20 @@ export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
 /**
  * Determine if an action should be retried
  */
-const shouldRetry = (action: any): boolean => {
+const shouldRetry = (action: AnyAction): boolean => {
   // Don't retry certain types of operations
-  const nonRetryableEndpoints = ['login', 'logout', 'deleteTransaction', 'deleteCategory'];
+  const nonRetryableEndpoints = [
+    'login',
+    'logout',
+    'deleteTransaction',
+    'deleteCategory',
+  ];
   const endpoint = action.meta?.arg?.endpointName;
-  
+
   if (endpoint && nonRetryableEndpoints.includes(endpoint)) {
     return false;
   }
-  
+
   return true;
 };
 
@@ -160,21 +184,26 @@ const shouldRetry = (action: any): boolean => {
  */
 export const retryMiddleware: Middleware = (api) => (next) => (action) => {
   const result = next(action);
-  
+
   // Process retry queue periodically
-  if (action.type === 'errors/processRetryQueue') {
+  if ((action as AnyAction).type === 'errors/processRetryQueue') {
     const state = api.getState() as any;
     const retryQueue = state.errors.retryQueue;
     const now = Date.now();
-    
+
     retryQueue.forEach((retryableError: any) => {
-      if (retryableError.nextRetryAt <= now && retryableError.retryCount < retryableError.maxRetries) {
+      if (
+        retryableError.nextRetryAt <= now &&
+        retryableError.retryCount < retryableError.maxRetries
+      ) {
         // Attempt retry
-        console.log(`Retrying action: ${retryableError.originalAction?.type} (attempt ${retryableError.retryCount + 1})`);
-        
+        console.log(
+          `Retrying action: ${retryableError.originalAction?.type} (attempt ${retryableError.retryCount + 1})`
+        );
+
         // Increment retry count
         api.dispatch(incrementRetryCount(retryableError.id));
-        
+
         // Dispatch original action again
         if (retryableError.originalAction) {
           // This would need to be implemented based on the specific action type
@@ -184,14 +213,16 @@ export const retryMiddleware: Middleware = (api) => (next) => (action) => {
       } else if (retryableError.retryCount >= retryableError.maxRetries) {
         // Max retries reached, remove from queue and show final error
         api.dispatch(removeFromRetryQueue(retryableError.id));
-        api.dispatch(addError({
-          message: `${retryableError.error.message} (最大再試行回数に達しました)`,
-          type: retryableError.error.type,
-          retryable: false,
-        }));
+        api.dispatch(
+          addError({
+            message: `${retryableError.error.message} (最大再試行回数に達しました)`,
+            type: retryableError.error.type,
+            retryable: false,
+          })
+        );
       }
     });
   }
-  
+
   return result;
 };

@@ -31,7 +31,9 @@ const initialState = {
 
 describe('categorySlice', () => {
   it('should return the initial state', () => {
-    expect(categoryReducer(undefined, { type: 'unknown' })).toEqual(initialState);
+    expect(categoryReducer(undefined, { type: 'unknown' })).toEqual(
+      initialState
+    );
   });
 
   it('should handle addCategory', () => {
@@ -46,10 +48,13 @@ describe('categorySlice', () => {
       ...initialState,
       categories: [mockCategory],
     };
-    
+
     const updatedCategory = { ...mockCategory, name: 'Updated Food' };
-    const actual = categoryReducer(stateWithCategory, updateCategory(updatedCategory));
-    
+    const actual = categoryReducer(
+      stateWithCategory,
+      updateCategory(updatedCategory)
+    );
+
     expect(actual.categories[0].name).toBe('Updated Food');
     expect(actual.lastUpdated).toBeTruthy();
   });
@@ -59,23 +64,29 @@ describe('categorySlice', () => {
       ...initialState,
       categories: [mockCategory],
     };
-    
+
     const actual = categoryReducer(stateWithCategory, removeCategory('1'));
-    
+
     expect(actual.categories).toHaveLength(0);
     expect(actual.lastUpdated).toBeTruthy();
   });
 
   it('should handle setCategories', () => {
-    const categories = [mockCategory, { ...mockCategory, id: '2', name: 'Transport' }];
+    const categories = [
+      mockCategory,
+      { ...mockCategory, id: '2', name: 'Transport' },
+    ];
     const actual = categoryReducer(initialState, setCategories(categories));
-    
+
     expect(actual.categories).toHaveLength(2);
     expect(actual.lastUpdated).toBeTruthy();
   });
 
   it('should handle setCurrentCategory', () => {
-    const actual = categoryReducer(initialState, setCurrentCategory(mockCategory));
+    const actual = categoryReducer(
+      initialState,
+      setCurrentCategory(mockCategory)
+    );
     expect(actual.currentCategory).toEqual(mockCategory);
   });
 
@@ -85,14 +96,14 @@ describe('categorySlice', () => {
       { ...mockCategory, id: '2', name: 'Apple' },
       { ...mockCategory, id: '3', name: 'Banana' },
     ];
-    
+
     const stateWithCategories = {
       ...initialState,
       categories,
     };
-    
+
     const actual = categoryReducer(stateWithCategories, sortCategories('name'));
-    
+
     expect(actual.categories[0].name).toBe('Apple');
     expect(actual.categories[1].name).toBe('Banana');
     expect(actual.categories[2].name).toBe('Zebra');
@@ -104,21 +115,24 @@ describe('categorySlice', () => {
       { ...mockCategory, id: '2', type: 'expense' as const },
       { ...mockCategory, id: '3', type: 'both' as const },
     ];
-    
+
     const stateWithCategories = {
       ...initialState,
       categories,
     };
-    
+
     const actual = categoryReducer(stateWithCategories, sortCategories('type'));
-    
+
     expect(actual.categories[0].type).toBe('both');
     expect(actual.categories[1].type).toBe('expense');
     expect(actual.categories[2].type).toBe('income');
   });
 
   it('should handle setLoading', () => {
-    const actual = categoryReducer(initialState, setLoading({ isLoading: true, operation: 'create' }));
+    const actual = categoryReducer(
+      initialState,
+      setLoading({ isLoading: true, operation: 'create' })
+    );
     expect(actual.loading.isLoading).toBe(true);
     expect(actual.loading.operation).toBe('create');
   });
@@ -129,7 +143,7 @@ describe('categorySlice', () => {
       categories: [mockCategory],
       currentCategory: mockCategory,
     };
-    
+
     const actual = categoryReducer(modifiedState, resetCategoryState());
     expect(actual).toEqual(initialState);
   });

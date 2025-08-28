@@ -4,7 +4,10 @@ import categorySlice from './slices/categorySlice';
 import errorSlice from './slices/errorSlice';
 import progressSlice from './slices/progressSlice';
 import { baseApi } from './api/baseApi';
-import { rtkQueryErrorLogger, retryMiddleware } from './middleware/errorMiddleware';
+import {
+  rtkQueryErrorLogger,
+  retryMiddleware,
+} from './middleware/errorMiddleware';
 
 export const store = configureStore({
   reducer: {

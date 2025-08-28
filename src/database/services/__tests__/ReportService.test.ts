@@ -6,7 +6,9 @@ import { Transaction, Category } from '../../../types';
 
 // Mock the transaction repository
 jest.mock('../../repositories/TransactionRepository');
-const mockTransactionRepository = transactionRepository as jest.Mocked<typeof transactionRepository>;
+const mockTransactionRepository = transactionRepository as jest.Mocked<
+  typeof transactionRepository
+>;
 
 // Mock the database
 jest.mock('../../schema', () => ({
@@ -92,7 +94,9 @@ describe('ReportService', () => {
     ];
 
     beforeEach(() => {
-      mockTransactionRepository.getTransactions.mockResolvedValue(mockTransactions);
+      mockTransactionRepository.getTransactions.mockResolvedValue(
+        mockTransactions
+      );
       mockDb.categories.toArray.mockResolvedValue(mockCategories);
     });
 
@@ -162,7 +166,9 @@ describe('ReportService', () => {
         },
       ];
 
-      mockTransactionRepository.getTransactions.mockResolvedValue(transactionsWithMissingCategory);
+      mockTransactionRepository.getTransactions.mockResolvedValue(
+        transactionsWithMissingCategory
+      );
 
       const report = await reportService.getMonthlyReport(2023, 6);
 
@@ -207,7 +213,9 @@ describe('ReportService', () => {
         },
       ];
 
-      mockTransactionRepository.getTransactions.mockResolvedValue(mockTransactions);
+      mockTransactionRepository.getTransactions.mockResolvedValue(
+        mockTransactions
+      );
       mockDb.categories.toArray.mockResolvedValue(mockCategories);
 
       const startDate = new Date('2023-06-01');
@@ -245,7 +253,9 @@ describe('ReportService', () => {
       };
 
       // Mock the getMonthlyReport method
-      jest.spyOn(reportService, 'getMonthlyReport').mockResolvedValue(mockMonthlyReport);
+      jest
+        .spyOn(reportService, 'getMonthlyReport')
+        .mockResolvedValue(mockMonthlyReport);
 
       const report = await reportService.getYearlyReport(2023);
 
@@ -260,7 +270,10 @@ describe('ReportService', () => {
       // Verify getMonthlyReport was called for each month
       expect(reportService.getMonthlyReport).toHaveBeenCalledTimes(12);
       for (let month = 1; month <= 12; month++) {
-        expect(reportService.getMonthlyReport).toHaveBeenCalledWith(2023, month);
+        expect(reportService.getMonthlyReport).toHaveBeenCalledWith(
+          2023,
+          month
+        );
       }
     });
   });
@@ -300,7 +313,9 @@ describe('ReportService', () => {
         },
       ];
 
-      mockTransactionRepository.getTransactions.mockResolvedValue(mockTransactions);
+      mockTransactionRepository.getTransactions.mockResolvedValue(
+        mockTransactions
+      );
 
       const startDate = new Date('2023-06-15');
       const endDate = new Date('2023-06-16');

@@ -21,14 +21,14 @@ import {
   Error as ErrorIcon,
 } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { 
-  selectPendingRetries, 
-  selectFailedRetries 
+import {
+  selectPendingRetries,
+  selectFailedRetries,
 } from '../../store/selectors/errorSelectors';
-import { 
-  removeFromRetryQueue, 
+import {
+  removeFromRetryQueue,
   clearRetryQueue,
-  addNotification 
+  addNotification,
 } from '../../store/slices/errorSlice';
 
 interface RetryManagerProps {
@@ -36,47 +36,54 @@ interface RetryManagerProps {
   onClose: () => void;
 }
 
-export const RetryManager: React.FC<RetryManagerProps> = ({ open, onClose }) => {
+export const RetryManager: React.FC<RetryManagerProps> = ({
+  open,
+  onClose,
+}) => {
   const dispatch = useAppDispatch();
   const pendingRetries = useAppSelector(selectPendingRetries);
   const failedRetries = useAppSelector(selectFailedRetries);
-  
+
   // Auto-process retry queue
   useEffect(() => {
     if (pendingRetries.length > 0) {
       const interval = setInterval(() => {
         dispatch({ type: 'errors/processRetryQueue' });
       }, 1000);
-      
+
       return () => clearInterval(interval);
     }
   }, [pendingRetries.length, dispatch]);
-  
+
   const handleCancelRetry = (retryId: string) => {
     dispatch(removeFromRetryQueue(retryId));
-    dispatch(addNotification({
-      message: '再試行をキャンセルしました',
-      type: 'info',
-      duration: 3000,
-    }));
+    dispatch(
+      addNotification({
+        message: '再試行をキャンセルしました',
+        type: 'info',
+        duration: 3000,
+      })
+    );
   };
-  
+
   const handleClearAll = () => {
     dispatch(clearRetryQueue());
-    dispatch(addNotification({
-      message: 'すべての再試行をクリアしました',
-      type: 'info',
-      duration: 3000,
-    }));
+    dispatch(
+      addNotification({
+        message: 'すべての再試行をクリアしました',
+        type: 'info',
+        duration: 3000,
+      })
+    );
   };
-  
+
   const formatTimeRemaining = (nextRetryAt: number) => {
     const remaining = Math.max(0, nextRetryAt - Date.now());
     return Math.ceil(remaining / 1000);
   };
-  
+
   const hasRetries = pendingRetries.length > 0 || failedRetries.length > 0;
-  
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -85,7 +92,7 @@ export const RetryManager: React.FC<RetryManagerProps> = ({ open, onClose }) => 
           再試行管理
         </Box>
       </DialogTitle>
-      
+
       <DialogContent>
         {!hasRetries ? (
           <Typography color="text.secondary" textAlign="center" py={4}>
@@ -106,15 +113,24 @@ export const RetryManager: React.FC<RetryManagerProps> = ({ open, onClose }) => 
                         secondary={
                           <Box>
                             <Typography variant="body2" color="text.secondary">
-                              試行回数: {retry.retryCount + 1}/{retry.maxRetries}
+                              試行回数: {retry.retryCount + 1}/
+                              {retry.maxRetries}
                             </Typography>
-                            <Box display="flex" alignItems="center" gap={1} mt={1}>
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              gap={1}
+                              mt={1}
+                            >
                               <Typography variant="body2">
-                                次回実行まで: {formatTimeRemaining(retry.nextRetryAt)}秒
+                                次回実行まで:{' '}
+                                {formatTimeRemaining(retry.nextRetryAt)}秒
                               </Typography>
                               <LinearProgress
                                 variant="determinate"
-                                value={(retry.retryCount / retry.maxRetries) * 100}
+                                value={
+                                  (retry.retryCount / retry.maxRetries) * 100
+                                }
                                 sx={{ flexGrow: 1, ml: 1 }}
                               />
                             </Box>
@@ -135,7 +151,7 @@ export const RetryManager: React.FC<RetryManagerProps> = ({ open, onClose }) => 
                 </List>
               </Box>
             )}
-            
+
             {failedRetries.length > 0 && (
               <Box>
                 <Typography variant="h6" gutterBottom>
@@ -183,16 +199,14 @@ export const RetryManager: React.FC<RetryManagerProps> = ({ open, onClose }) => 
           </Box>
         )}
       </DialogContent>
-      
+
       <DialogActions>
         {hasRetries && (
           <Button onClick={handleClearAll} color="secondary">
             すべてクリア
           </Button>
         )}
-        <Button onClick={onClose}>
-          閉じる
-        </Button>
+        <Button onClick={onClose}>閉じる</Button>
       </DialogActions>
     </Dialog>
   );

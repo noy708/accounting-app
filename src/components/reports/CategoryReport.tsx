@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -29,7 +28,7 @@ import {
 } from 'chart.js';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { useGetCategoryReportQuery } from '../../store/api/reportApi';
-import { CategorySummary } from '../../types';
+
 
 // Chart.jsの必要なコンポーネントを登録
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -299,16 +298,16 @@ export const CategoryReport: React.FC<CategoryReportProps> = ({
             総支出: {formatAmount(totalAmount)}
           </Typography>
 
-          <Grid container spacing={3}>
+          <Box display="flex" flexWrap="wrap" gap={3}>
             {/* 円グラフ */}
-            <Grid item xs={12} md={6}>
+            <Box flex="1 1 400px" minWidth="400px">
               <Box height={400}>
                 {chartData && <Pie data={chartData} options={chartOptions} />}
               </Box>
-            </Grid>
+            </Box>
 
             {/* カテゴリ詳細テーブル */}
-            <Grid item xs={12} md={6}>
+            <Box flex="1 1 400px" minWidth="400px">
               <TableContainer component={Paper} variant="outlined">
                 <Table size="small">
                   <TableHead>
@@ -357,10 +356,12 @@ export const CategoryReport: React.FC<CategoryReportProps> = ({
                   </TableBody>
                 </Table>
               </TableContainer>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
     </Box>
   );
 };
+
+export default CategoryReport;

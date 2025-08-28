@@ -24,13 +24,12 @@ const createMockStore = (initialState = {}) => {
   });
 };
 
-const renderWithStore = (component: React.ReactElement, store = createMockStore()) => {
+const renderWithStore = (
+  component: React.ReactElement,
+  store = createMockStore()
+) => {
   return {
-    ...render(
-      <Provider store={store}>
-        {component}
-      </Provider>
-    ),
+    ...render(<Provider store={store}>{component}</Provider>),
     store,
   };
 };
@@ -74,9 +73,11 @@ describe('RetryManager', () => {
 
   it('renders dialog when open', () => {
     renderWithStore(<RetryManager open={true} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText('再試行管理')).toBeInTheDocument();
-    expect(screen.getByText('現在再試行中の操作はありません')).toBeInTheDocument();
+    expect(
+      screen.getByText('現在再試行中の操作はありません')
+    ).toBeInTheDocument();
   });
 
   it('displays pending retries', () => {
@@ -100,7 +101,9 @@ describe('RetryManager', () => {
 
     expect(screen.getByText('再試行失敗 (1)')).toBeInTheDocument();
     expect(screen.getByText('Failed error message')).toBeInTheDocument();
-    expect(screen.getByText('最大再試行回数に達しました (3回)')).toBeInTheDocument();
+    expect(
+      screen.getByText('最大再試行回数に達しました (3回)')
+    ).toBeInTheDocument();
   });
 
   it('displays both pending and failed retries', () => {
@@ -123,10 +126,10 @@ describe('RetryManager', () => {
 
     renderWithStore(<RetryManager open={true} onClose={mockOnClose} />, store);
 
-    const cancelButton = screen.getAllByRole('button').find(
-      button => button.getAttribute('aria-label') === null
-    );
-    
+    const cancelButton = screen
+      .getAllByRole('button')
+      .find((button) => button.getAttribute('aria-label') === null);
+
     if (cancelButton) {
       fireEvent.click(cancelButton);
     }
@@ -197,7 +200,7 @@ describe('RetryManager', () => {
 
   it('processes retry queue automatically', async () => {
     jest.useFakeTimers();
-    
+
     const store = createMockStore({
       retryQueue: [mockRetryableError],
     });

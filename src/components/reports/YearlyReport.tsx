@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -33,7 +32,7 @@ import { Line, Bar } from 'react-chartjs-2';
 import { useGetYearlyReportQuery } from '../../store/api/reportApi';
 import LoadingDisplay from '../common/LoadingDisplay';
 import ErrorDisplay from '../common/ErrorDisplay';
-import { YearSelector } from '../common/YearSelector';
+import YearSelector from '../common/YearSelector';
 
 // Chart.js の必要なコンポーネントを登録
 ChartJS.register(
@@ -287,8 +286,8 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
       {report && (
         <>
           {/* サマリーカード */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={3}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -299,8 +298,8 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -311,8 +310,8 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -327,8 +326,8 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={3}>
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
               <Card>
                 <CardContent>
                   <Typography color="textSecondary" gutterBottom>
@@ -343,8 +342,8 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           {/* グラフ表示タブ */}
           <Card>
@@ -386,7 +385,7 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {report.monthlyData.map((monthData, index) => (
+                      {report.monthlyData.map((monthData) => (
                         <TableRow key={monthData.month}>
                           <TableCell component="th" scope="row">
                             {monthData.month}月
@@ -438,3 +437,4 @@ export const YearlyReport: React.FC<YearlyReportProps> = ({ className }) => {
     </Box>
   );
 };
+export default YearlyReport;

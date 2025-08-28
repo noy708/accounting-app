@@ -21,7 +21,7 @@ describe('Database Schema', () => {
 
   it('should create a simple category', async () => {
     await db.open();
-    
+
     const category = {
       id: 'test-id',
       name: 'Test Category',
@@ -29,11 +29,11 @@ describe('Database Schema', () => {
       type: 'expense' as const,
       isDefault: false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     await db.categories.add(category);
-    
+
     const retrieved = await db.categories.get('test-id');
     expect(retrieved).toBeDefined();
     expect(retrieved?.name).toBe('Test Category');
@@ -41,7 +41,7 @@ describe('Database Schema', () => {
 
   it('should create multiple categories', async () => {
     await db.open();
-    
+
     const categories = [
       {
         id: 'test-1',
@@ -50,7 +50,7 @@ describe('Database Schema', () => {
         type: 'expense' as const,
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: 'test-2',
@@ -59,17 +59,17 @@ describe('Database Schema', () => {
         type: 'income' as const,
         isDefault: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ];
 
     await db.categories.bulkAdd(categories);
-    
+
     const count = await db.categories.count();
     expect(count).toBe(2);
-    
+
     const allCategories = await db.categories.toArray();
-    const defaultCategories = allCategories.filter(cat => cat.isDefault);
+    const defaultCategories = allCategories.filter((cat) => cat.isDefault);
     expect(defaultCategories).toHaveLength(1);
     expect(defaultCategories[0].name).toBe('Category 2');
   });

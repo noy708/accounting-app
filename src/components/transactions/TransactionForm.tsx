@@ -6,14 +6,12 @@ import {
   Button,
   ToggleButton,
   ToggleButtonGroup,
-  Grid,
   Alert,
   CircularProgress,
   TextField,
 } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import { format } from 'date-fns';
 
 import { CreateTransactionDto } from '../../types';
 import {
@@ -23,7 +21,6 @@ import {
 import AmountInput from '../common/AmountInput';
 import CategorySelector from '../common/CategorySelector';
 import DatePicker from '../common/DatePicker';
-import { ErrorDisplay } from '../common';
 import { LoadingDisplay } from '../common';
 
 interface TransactionFormProps {
@@ -98,7 +95,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       resetForm();
       onSuccess?.(result);
     } catch (error) {
-      // Error is handled by RTK Query and displayed via createError
       console.error('Failed to create transaction:', error);
     } finally {
       setSubmitting(false);
@@ -119,9 +115,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       >
         {({ values, errors, touched, setFieldValue, isSubmitting }) => (
           <Form>
-            <Grid container spacing={3}>
-              {/* Transaction Type Toggle */}
-              <Grid size={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
                 <Typography variant="subtitle2" gutterBottom>
                   取引種別 *
                 </Typography>
@@ -131,7 +126,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                   onChange={(_, newType) => {
                     if (newType) {
                       setFieldValue('type', newType);
-                      // Reset category when type changes
                       setFieldValue('categoryId', null);
                     }
                   }}
@@ -154,108 +148,90 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     {errors.type}
                   </Typography>
                 )}
-              </Grid>
-
-              {/* Amount Input */}
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <AmountInput
-                  value={values.amount}
-                  onChange={(amount) => setFieldValue('amount', amount)}
-                  label="金額 *"
-                  error={!!(errors.amount && touched.amount)}
-                  helperText={
-                    errors.amount && touched.amount ? errors.amount : undefined
-                  }
-                  fullWidth
-                  maxAmount={999999999}
-                />
-              </Grid>
-
-              {/* Date Picker */}
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <DatePicker
-                  value={values.date}
-                  onChange={(date) => setFieldValue('date', date)}
-                  label="日付 *"
-                  error={!!(errors.date && touched.date)}
-                  helperText={
-                    errors.date && touched.date ? errors.date : undefined
-                  }
-                  maxDate={new Date()}
-                  fullWidth
-                />
-              </Grid>
-
-              {/* Category Selector */}
-              <Grid size={12}>
-                <CategorySelectorWithData
-                  value={values.categoryId}
-                  onChange={(categoryId) =>
-                    setFieldValue('categoryId', categoryId)
-                  }
-                  filterByType={values.type}
-                  error={!!(errors.categoryId && touched.categoryId)}
-                  helperText={
-                    errors.categoryId && touched.categoryId
-                      ? errors.categoryId
-                      : undefined
-                  }
-                />
-              </Grid>
-
-              {/* Description */}
-              <Grid size={12}>
-                <TextField
-                  value={values.description}
-                  onChange={(e) => setFieldValue('description', e.target.value)}
-                  label="説明 *"
-                  error={!!(errors.description && touched.description)}
-                  helperText={
-                    errors.description && touched.description
-                      ? errors.description
-                      : undefined
-                  }
-                  fullWidth
-                  multiline
-                  rows={2}
-                  inputProps={{ maxLength: 200 }}
-                />
-              </Grid>
-
-              {/* Error Display */}
-              {createError && (
-                <Grid size={12}>
-                  <ErrorDisplay error={createError} />
-                </Grid>
-              )}
-
-              {/* Action Buttons */}
-              <Grid size={12}>
-                <Box
-                  sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}
-                >
-                  {onCancel && (
-                    <Button
-                      variant="outlined"
-                      onClick={onCancel}
-                      disabled={isSubmitting || isCreating}
-                    >
-                      キャンセル
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isSubmitting || isCreating}
-                    startIcon={
-                      isCreating ? <CircularProgress size={20} /> : undefined
+              </Box>
+              
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: 200 }}>
+                  <AmountInput
+                    value={values.amount}
+                    onChange={(amount) => setFieldValue('amount', amount)}
+                    label="金額 *"
+                    error={!!(errors.amount && touched.amount)}
+                    helperText={
+                      errors.amount && touched.amount ? errors.amount : undefined
                     }
-                  >
-                    {isCreating ? '保存中...' : '保存'}
-                  </Button>
+                    fullWidth
+                    maxAmount={999999999}
+                  />
                 </Box>
-              </Grid>
-            </Grid>
+                <Box sx={{ flex: '1 1 300px', minWidth: 200 }}>
+                  <DatePicker
+                    value={values.date}
+                    onChange={(date) => setFieldValue('date', date)}
+                    label="日付 *"
+                    error={!!(errors.date && touched.date)}
+                    helperText={
+                      errors.date && touched.date ? errors.date : undefined
+                    }
+                    maxDate={new Date()}
+                    fullWidth
+                  />
+                </Box>
+              </Box>
+              
+              <CategorySelectorWithData
+                value={values.categoryId}
+                onChange={(categoryId) =>
+                  setFieldValue('categoryId', categoryId)
+                }
+                filterByType={values.type}
+                error={!!(errors.categoryId && touched.categoryId)}
+                helperText={
+                  errors.categoryId && touched.categoryId
+                    ? errors.categoryId
+                    : undefined
+                }
+              />
+              
+              <TextField
+                value={values.description}
+                onChange={(e) => setFieldValue('description', e.target.value)}
+                label="説明 *"
+                error={!!(errors.description && touched.description)}
+                helperText={
+                  errors.description && touched.description
+                    ? errors.description
+                    : undefined
+                }
+                fullWidth
+                multiline
+                rows={2}
+                slotProps={{ htmlInput: { maxLength: 200 } }}
+              />
+              
+              
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                {onCancel && (
+                  <Button
+                    variant="outlined"
+                    onClick={onCancel}
+                    disabled={isSubmitting || isCreating}
+                  >
+                    キャンセル
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={isSubmitting || isCreating}
+                  startIcon={
+                    isCreating ? <CircularProgress size={20} /> : undefined
+                  }
+                >
+                  {isCreating ? '保存中...' : '保存'}
+                </Button>
+              </Box>
+            </Box>
           </Form>
         )}
       </Formik>
@@ -290,7 +266,11 @@ const CategorySelectorWithData: React.FC<CategorySelectorWithDataProps> = ({
   }
 
   if (loadError) {
-    return <ErrorDisplay error={loadError} />;
+    return (
+      <Alert severity="error">
+        カテゴリの読み込みに失敗しました。
+      </Alert>
+    );
   }
 
   if (categories.length === 0) {

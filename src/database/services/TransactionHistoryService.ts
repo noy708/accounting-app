@@ -54,8 +54,7 @@ export class TransactionHistoryService {
     return await db.transactionHistory
       .where('transactionId')
       .equals(transactionId)
-      .orderBy('timestamp')
-      .toArray();
+      .sortBy('timestamp');
   }
 
   /**
@@ -100,9 +99,8 @@ export class TransactionHistoryService {
       const history = await db.transactionHistory
         .where('transactionId')
         .equals(transactionId as string)
-        .orderBy('timestamp')
         .reverse()
-        .toArray();
+        .sortBy('timestamp');
 
       if (history.length > keepLastN) {
         const entriesToDelete = history.slice(keepLastN);

@@ -9,13 +9,13 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { 
-  selectActiveNotifications, 
-  selectNotificationsByType 
+import {
+  selectActiveNotifications,
+  selectNotificationsByType,
 } from '../../store/selectors/errorSelectors';
-import { 
-  removeNotification, 
-  clearExpiredNotifications 
+import {
+  removeNotification,
+  clearExpiredNotifications,
 } from '../../store/slices/errorSlice';
 
 interface NotificationSystemProps {
@@ -28,32 +28,32 @@ interface NotificationSystemProps {
 
 export const NotificationSystem: React.FC<NotificationSystemProps> = ({
   maxVisible = 5,
-  position = { vertical: 'top', horizontal: 'right' }
+  position = { vertical: 'top', horizontal: 'right' },
 }) => {
   const dispatch = useAppDispatch();
   const notifications = useAppSelector(selectActiveNotifications);
-  
+
   // Clean up expired notifications periodically
   useEffect(() => {
     const interval = setInterval(() => {
       dispatch(clearExpiredNotifications());
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [dispatch]);
-  
+
   const handleClose = (notificationId: string) => {
     dispatch(removeNotification(notificationId));
   };
-  
+
   // Show only the most recent notifications
   const visibleNotifications = notifications.slice(-maxVisible);
-  
+
   // Don't render anything if no notifications
   if (visibleNotifications.length === 0) {
     return null;
   }
-  
+
   return (
     <Box
       sx={{
@@ -71,7 +71,9 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
           <Snackbar
             key={notification.id}
             open={true}
-            autoHideDuration={notification.persistent ? null : (notification.duration || 6000)}
+            autoHideDuration={
+              notification.persistent ? null : notification.duration || 6000
+            }
             onClose={() => handleClose(notification.id)}
             anchorOrigin={position}
           >

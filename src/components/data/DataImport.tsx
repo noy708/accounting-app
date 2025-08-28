@@ -157,7 +157,8 @@ export const DataImport: React.FC<DataImportProps> = ({
       setShowResultDialog(true);
       onImportComplete?.(importResult);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'インポートに失敗しました');
+      const errorMessage = (err as Error)?.message || 'インポートに失敗しました';
+      setError(errorMessage);
     } finally {
       setIsImporting(false);
       setProgress(null);
@@ -520,3 +521,4 @@ export const DataImport: React.FC<DataImportProps> = ({
     </>
   );
 };
+export default DataImport;

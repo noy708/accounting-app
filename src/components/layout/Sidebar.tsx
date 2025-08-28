@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   List,
@@ -75,10 +76,16 @@ const navigationItems: NavigationItem[] = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ onItemClick }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const handleItemClick = (path: string) => {
-    // TODO: Implement navigation logic when router is added
-    console.log(`Navigate to: ${path}`);
+    navigate(path);
     onItemClick?.();
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
   const renderNavigationItems = () => {
@@ -109,11 +116,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onItemClick }) => {
         <ListItem key={item.path} disablePadding>
           <ListItemButton
             onClick={() => handleItemClick(item.path)}
+            selected={isActive(item.path)}
             sx={{
               minHeight: 48,
               px: 2.5,
               '&:hover': {
                 backgroundColor: 'action.hover',
+              },
+              '&.Mui-selected': {
+                backgroundColor: 'primary.main',
+                color: 'primary.contrastText',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+                '& .MuiListItemIcon-root': {
+                  color: 'primary.contrastText',
+                },
               },
             }}
           >

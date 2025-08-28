@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+import Dashboard from '../Dashboard';
+
 // Mock the API hooks to avoid complex setup
 jest.mock('../../../store/api/transactionApi', () => ({
   useGetTransactionsQuery: () => ({
@@ -46,8 +48,6 @@ jest.mock('../../../store/api/categoryApi', () => ({
     error: null,
   }),
 }));
-
-import Dashboard from '../Dashboard';
 
 const theme = createTheme();
 

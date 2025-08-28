@@ -5,9 +5,19 @@ import { Category, Transaction } from '../../../types';
 
 // Mock the API hooks
 const mockDeleteCategory = jest.fn();
-const mockUseIsCategoryInUseQuery = jest.fn();
-const mockUseGetCategoriesQuery = jest.fn();
-const mockUseGetTransactionsQuery = jest.fn();
+const mockUseIsCategoryInUseQuery = jest.fn(() => ({
+  data: false,
+  isLoading: false,
+  error: undefined,
+}));
+const mockUseGetCategoriesQuery = jest.fn(() => ({
+  data: [],
+  isLoading: false,
+}));
+const mockUseGetTransactionsQuery = jest.fn(() => ({
+  data: [],
+  isLoading: false,
+}));
 
 jest.mock('../../../store/api/categoryApi', () => ({
   useDeleteCategoryMutation: () => [mockDeleteCategory, { isLoading: false }],
