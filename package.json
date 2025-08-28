@@ -2,6 +2,7 @@
   "name": "accounting-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://noy708.github.io/accounting-app",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -43,7 +44,9 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "format": "prettier --write src/**/*.{ts,tsx,json,css,md}",
-    "format:check": "prettier --check src/**/*.{ts,tsx,json,css,md}"
+    "format:check": "prettier --check src/**/*.{ts,tsx,json,css,md}",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -73,6 +76,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "fake-indexeddb": "^6.1.0",
+    "gh-pages": "^6.3.0",
     "prettier": "^3.6.2"
   }
 }
