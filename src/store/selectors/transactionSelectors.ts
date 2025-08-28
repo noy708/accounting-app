@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../index';
-import { Transaction, TransactionFilter } from '../../types';
 
 // Base selectors
 export const selectTransactionState = (state: RootState) => state.transactions;

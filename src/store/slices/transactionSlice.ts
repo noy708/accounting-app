@@ -1,8 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   Transaction,
-  CreateTransactionDto,
-  UpdateTransactionDto,
   TransactionFilter,
   LoadingState,
   PaginationState,
@@ -103,7 +101,7 @@ const transactionSlice = createSlice({
     },
 
     // Reset state
-    resetTransactionState: (state) => {
+    resetTransactionState: () => {
       return initialState;
     },
   },

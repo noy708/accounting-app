@@ -104,7 +104,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     } else {
       formik.resetForm();
     }
-  }, [category]);
+  }, [category, formik]);
 
   const handleColorChange = (color: string) => {
     formik.setFieldValue('color', color);

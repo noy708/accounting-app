@@ -2,10 +2,8 @@ import React from 'react';
 import {
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Chip,
-  Typography,
   Box,
   useTheme,
 } from '@mui/material';
@@ -36,11 +34,7 @@ const TransactionItem: React.FC<TransactionItemProps> = React.memo(
       return `${prefix}¥${formattedAmount}`;
     };
 
-    const getAmountColor = (type: 'income' | 'expense') => {
-      return type === 'income'
-        ? theme.palette.success.main
-        : theme.palette.error.main;
-    };
+
 
     const formatDate = (date: Date) => {
       const d = new Date(date);
@@ -93,31 +87,29 @@ const TransactionItem: React.FC<TransactionItemProps> = React.memo(
           />
         )}
 
-        <ListItemSecondaryAction>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {onEdit && (
-              <IconButton
-                edge="end"
-                aria-label="edit"
-                onClick={handleEdit}
-                size="small"
-              >
-                <EditIcon />
-              </IconButton>
-            )}
-            {onDelete && (
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={handleDelete}
-                size="small"
-                sx={{ color: theme.palette.error.main }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </Box>
-        </ListItemSecondaryAction>
+        <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+          {onEdit && (
+            <IconButton
+              edge="end"
+              aria-label="edit"
+              onClick={handleEdit}
+              size="small"
+            >
+              <EditIcon />
+            </IconButton>
+          )}
+          {onDelete && (
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={handleDelete}
+              size="small"
+              sx={{ color: theme.palette.error.main }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </Box>
       </ListItem>
     );
   }

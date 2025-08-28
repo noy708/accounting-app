@@ -4,11 +4,9 @@ import {
   Paper,
   Typography,
   Button,
-  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Alert,
   Fab,
 } from '@mui/material';
@@ -124,8 +122,8 @@ export const CategoryManager: React.FC = () => {
           onClose={handleCloseForm}
           maxWidth="sm"
           fullWidth
-          PaperProps={{
-            sx: { m: 1 },
+          slotProps={{
+            paper: { sx: { m: 1 } },
           }}
         >
           <DialogTitle>

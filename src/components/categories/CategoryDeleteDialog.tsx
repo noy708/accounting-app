@@ -54,7 +54,7 @@ export const CategoryDeleteDialog: React.FC<CategoryDeleteDialogProps> = ({
       skip: !open || !isInUse,
     });
 
-  const { data: relatedTransactions = [], isLoading: isTransactionsLoading } =
+  const { data: relatedTransactions = [] } =
     useGetTransactionsQuery(
       { categoryId: category.id },
       {

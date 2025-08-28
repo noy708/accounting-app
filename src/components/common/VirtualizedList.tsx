@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { FixedSizeList as List } from 'react-window';
-import { Box, Paper } from '@mui/material';
+import { Paper } from '@mui/material';
 
 interface VirtualizedListProps<T> {
   items: T[];

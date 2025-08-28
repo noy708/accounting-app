@@ -63,7 +63,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   initialValues = {},
 }) => {
   const { type: urlType } = useParams<{ type?: 'income' | 'expense' }>();
-  const [createTransaction, { isLoading: isCreating, error: createError }] =
+  const [createTransaction, { isLoading: isCreating }] =
     useCreateTransactionMutation();
 
   const defaultValues: FormValues = {

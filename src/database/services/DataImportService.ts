@@ -1,9 +1,4 @@
-import {
-  Transaction,
-  Category,
-  CreateTransactionDto,
-  CreateCategoryDto,
-} from '../../types';
+import { CreateTransactionDto, CreateCategoryDto } from '../../types';
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { CategoryRepository } from '../repositories/CategoryRepository';
 

@@ -67,7 +67,7 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [updateTransaction, { isLoading: isUpdating, error: updateError }] =
+  const [updateTransaction, { isLoading: isUpdating }] =
     useUpdateTransactionMutation();
 
   if (!transaction) {

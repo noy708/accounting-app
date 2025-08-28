@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Snackbar,
   Alert,
-  AlertTitle,
   Slide,
   Grow,
   Fade,
@@ -24,10 +23,7 @@ import {
 } from '@mui/icons-material';
 import { TransitionProps } from '@mui/material/transitions';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import {
-  addNotification,
-  removeNotification,
-} from '../../store/slices/errorSlice';
+import { addNotification } from '../../store/slices/errorSlice';
 import { selectActiveOperations } from '../../store/selectors/progressSelectors';
 
 interface FeedbackToastProps {

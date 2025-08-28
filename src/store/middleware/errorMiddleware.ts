@@ -1,9 +1,4 @@
-import {
-  isRejectedWithValue,
-  Middleware,
-  createListenerMiddleware,
-  AnyAction,
-} from '@reduxjs/toolkit';
+import { isRejectedWithValue, Middleware } from '@reduxjs/toolkit';
 import {
   addError,
   addDatabaseError,
@@ -109,10 +104,10 @@ export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
     };
 
     // Add to retry queue if retryable
-    if (retryable && shouldRetry(action as AnyAction)) {
+    if (retryable && shouldRetry(action as any)) {
       api.dispatch(
         addRetryableError({
-          originalAction: (action as AnyAction).meta?.arg,
+          originalAction: (action as any).meta?.arg,
           error: errorState,
           maxRetries: RETRY_CONFIG.maxRetries,
         })
@@ -162,7 +157,7 @@ export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
 /**
  * Determine if an action should be retried
  */
-const shouldRetry = (action: AnyAction): boolean => {
+const shouldRetry = (action: any): boolean => {
   // Don't retry certain types of operations
   const nonRetryableEndpoints = [
     'login',
@@ -186,7 +181,7 @@ export const retryMiddleware: Middleware = (api) => (next) => (action) => {
   const result = next(action);
 
   // Process retry queue periodically
-  if ((action as AnyAction).type === 'errors/processRetryQueue') {
+  if ((action as any).type === 'errors/processRetryQueue') {
     const state = api.getState() as any;
     const retryQueue = state.errors.retryQueue;
     const now = Date.now();

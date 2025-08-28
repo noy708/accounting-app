@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../index';
-import { ErrorState } from '../../types';
 
 // Base selectors
 export const selectErrorState = (state: RootState) => state.errors;

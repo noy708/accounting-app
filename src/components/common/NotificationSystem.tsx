@@ -1,18 +1,8 @@
 import React, { useEffect } from 'react';
-import {
-  Snackbar,
-  Alert,
-  AlertTitle,
-  Stack,
-  IconButton,
-  Box,
-} from '@mui/material';
+import { Snackbar, Alert, Stack, IconButton, Box } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import {
-  selectActiveNotifications,
-  selectNotificationsByType,
-} from '../../store/selectors/errorSelectors';
+import { selectActiveNotifications } from '../../store/selectors/errorSelectors';
 import {
   removeNotification,
   clearExpiredNotifications,
