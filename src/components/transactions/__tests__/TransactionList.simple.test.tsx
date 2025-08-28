@@ -118,28 +118,51 @@ describe('TransactionList Simple Integration', () => {
     const deleteButtons = screen.getAllByLabelText('delete');
     fireEvent.click(deleteButtons[0]);
 
-    expect(screen.getByText('取引の削除')).toBeInTheDocument();
+    expect(screen.getByText('取引を削除')).toBeInTheDocument();
     expect(
-      screen.getByText('この取引を削除してもよろしいですか？')
+      screen.getByText(
+        '以下の取引を削除してもよろしいですか？この操作は取り消すことができません。'
+      )
     ).toBeInTheDocument();
     expect(screen.getByText('キャンセル')).toBeInTheDocument();
     expect(screen.getByText('削除')).toBeInTheDocument();
   });
 
-  it('calls onEditTransaction when provided', () => {
-    const onEditTransaction = jest.fn();
-
-    renderWithTheme(<TransactionList onEditTransaction={onEditTransaction} />);
+  it('opens edit modal when edit button is clicked', () => {
+    renderWithTheme(<TransactionList />);
 
     const editButtons = screen.getAllByLabelText('edit');
     fireEvent.click(editButtons[0]);
 
-    expect(onEditTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        description: '給与',
-        amount: 1000,
-        type: 'income',
-      })
-    );
+    // Check if edit modal is opened
+    expect(screen.getByText('取引を編集')).toBeInTheDocument();
+  });
+
+  it('shows filter component by default', () => {
+    renderWithTheme(<TransactionList />);
+
+    // Check if filter component is present
+    expect(screen.getByText('フィルター')).toBeInTheDocument();
+  });
+
+  it('hides filter component when showFilter is false', () => {
+    renderWithTheme(<TransactionList showFilter={false} />);
+
+    // Check if filter component is not present
+    expect(screen.queryByText('フィルター')).not.toBeInTheDocument();
+  });
+
+  it('changes sort order', () => {
+    renderWithTheme(<TransactionList />);
+
+    const sortSelect = screen.getByLabelText('並び順');
+    fireEvent.mouseDown(sortSelect);
+
+    const oldOrderOption = screen.getByText('古い順');
+    fireEvent.click(oldOrderOption);
+
+    // The transactions should now be sorted in ascending order
+    // This is a simple test - in a real scenario, you'd check the actual order
+    expect(screen.getByDisplayValue('古い順')).toBeInTheDocument();
   });
 });

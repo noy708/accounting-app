@@ -146,14 +146,13 @@ describe('TransactionDeleteDialog', () => {
   });
 
   it('handles delete confirmation', async () => {
-    const user = userEvent.setup();
     const onSuccess = jest.fn();
     const onClose = jest.fn();
 
     renderComponent({ onSuccess, onClose });
 
     const deleteButton = screen.getByRole('button', { name: '削除' });
-    await user.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(mockDeleteTransaction).toHaveBeenCalledWith('1');
@@ -166,13 +165,12 @@ describe('TransactionDeleteDialog', () => {
   });
 
   it('handles cancel button click', async () => {
-    const user = userEvent.setup();
     const onClose = jest.fn();
 
     renderComponent({ onClose });
 
     const cancelButton = screen.getByRole('button', { name: 'キャンセル' });
-    await user.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(onClose).toHaveBeenCalled();
     expect(mockDeleteTransaction).not.toHaveBeenCalled();
@@ -223,10 +221,9 @@ describe('TransactionDeleteDialog', () => {
   });
 
   it('handles deletion error gracefully', async () => {
-    const user = userEvent.setup();
     const consoleError = jest
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     mockDeleteTransaction.mockReturnValue({
       unwrap: jest.fn().mockRejectedValue(new Error('Network error')),
@@ -235,7 +232,7 @@ describe('TransactionDeleteDialog', () => {
     renderComponent();
 
     const deleteButton = screen.getByRole('button', { name: '削除' });
-    await user.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(consoleError).toHaveBeenCalledWith(
