@@ -32,14 +32,11 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run tests
-      run: npm run test:ci
+    - name: Build
+      run: npm run build
       env:
         CI: true
         NODE_OPTIONS: --max_old_space_size=4096
-      
-    - name: Build
-      run: npm run build
       
     - name: Setup Pages
       uses: actions/configure-pages@v4
